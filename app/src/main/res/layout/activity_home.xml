@@ -18,7 +18,8 @@
         android:id="@+id/activity_home_textview_prompt_source"
         android:textSize="15sp"
         android:paddingTop="10dp"
-        android:paddingBottom="10dp" />
+        android:paddingBottom="10dp"
+        android:layout_below="@+id/activity_home_textview_home" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -62,4 +63,13 @@
         android:layout_alignTop="@+id/activity_home_textview_prompt_destination"
         android:layout_toEndOf="@+id/activity_home_textview_prompt_destination"
         android:layout_alignBottom="@+id/activity_home_textview_prompt_destination" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home"
+        android:id="@+id/activity_home_textview_home"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="20sp" />
 </RelativeLayout>
