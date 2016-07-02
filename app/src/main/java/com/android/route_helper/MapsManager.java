@@ -1,47 +1,62 @@
 package com.android.route_helper;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.widget.BaseAdapter;
+
+import junit.framework.Test;
 
 /**
  * Created by Erik Mei on 6/30/2016.
  */
-public class MapsManager {
+public class MapsManager{
     private static SharedPreferences sp;
     private Context context;
 
     public MapsManager(Context currContext) {
-        sp = context.getSharedPreferences("MyPrefs", 0);
+        sp = currContext.getSharedPreferences("MyPrefs", 0);
     }
 
-    public static void loadMap(Context c) {
-        Intent switchToMap = new Intent(c, /*Maps Activivty */);
-        startActivity(switchToMap);
+    public static void loadMap(Context currContext, Class<?> targetClass) {
+
+        //ideally, targetClass is the Map Activity
+        Intent switchToMap = new Intent(currContext, targetClass);
+        currContext.startActivity(switchToMap);
     }
 
-    public static void closeMap(Context c) {
+    public static void closeMap(Context currContext, Class<?> targetClass) {
 
+        if(targetClass == null) {
+            //Go to previous screen if none has been specified
+            ((Activity)currContext).finish();
+            return;
+        }
+        Intent switchToMap = new Intent(/*Maps Activity*/currContext, targetClass);
+        currContext.startActivity(switchToMap);
     }
 
-    public static void saveSourceLocation(Location loc) {
+    public static void saveLocation(Location loc, boolean isSourceLoc) {
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString("sourceLocLat", Double.toString(loc.getLatitude()));
-        editor.putString("sourceLocLong", Double.toString(loc.getLatitude()));
+        editor.putString((isSourceLoc) ? "sourceLocLat" : "destLocLat", Double.toString(loc.getLatitude()));
+        editor.putString((isSourceLoc) ? "sourceLocLng" : "destLocLng", Double.toString(loc.getLongitude()));
+        editor.putString((isSourceLoc) ? "sourceLocProvider" : "destLocProvider", loc.getProvider());
         editor.commit();
     }
 
-    public static void saveDestinationLocation(Location loc) {
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString("destLocLat", Double.toString(loc.getLatitude()));
-        editor.putString("destLocLong", Double.toString(loc.getLatitude()));
-        editor.commit();
+    public static Location getLocation(boolean isSource) {
+        String provider;
+        Double lat, lng;
+        lat = (isSource) ? Double.parseDouble(sp.getString("sourceLocLat", "99999")) : Double.parseDouble(sp.getString("destLocLat", "99999"));
+        lng = (isSource) ? Double.parseDouble(sp.getString("sourceLocLng", "99999")) : Double.parseDouble(sp.getString("destLocLng", "99999"));
+        provider = (isSource) ? sp.getString("sourceLocProvider", "No provider found ") : sp.getString("destLocProvider", "No provider found");
+        Location loc = new Location(provider);
+        loc.setLatitude(lat);
+        loc.setLongitude(lng);
+        return loc;
     }
-
-    public static Location getSourceLocation() {return null;}
-
-    public static Location getDestinationLocation() {return null;}
 
 }

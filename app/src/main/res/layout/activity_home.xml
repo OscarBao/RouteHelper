@@ -40,6 +40,7 @@
         android:id="@+id/activity_home_button_startroute"
         android:layout_below="@+id/activity_home_textview_prompt_destination"
         android:layout_toEndOf="@+id/activity_home_textview_prompt_destination"
+        android:onClick = "startRoute"
         android:layout_marginTop="20dp"
         android:textSize="15sp" />
 
