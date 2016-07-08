@@ -1,10 +1,10 @@
 package com.android.route_helper;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
+import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.LocationTracking.LocationTracker;
 
 public class LaunchActivity extends AppCompatActivity {
@@ -20,6 +20,7 @@ public class LaunchActivity extends AppCompatActivity {
         Perform loading activities
          */
         LocationTracker locationTracker = new LocationTracker(this);
+        Checkpoints checkpoints = new Checkpoints();
 
         Intent toHomeActivity = new Intent(this, homeActivity);
         startActivity(toHomeActivity);

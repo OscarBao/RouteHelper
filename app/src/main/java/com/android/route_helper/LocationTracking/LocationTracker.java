@@ -56,6 +56,7 @@ public class LocationTracker {
         }
     }
 
+
     /*
         PRIVATE HELPER METHODS
      */
