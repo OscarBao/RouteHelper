@@ -1,6 +1,5 @@
 package com.android.route_helper.LocationTracking;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.location.Location;
@@ -30,9 +29,9 @@ public class LocationTracker {
 
     public LocationTracker(Context context) {
         this.context = context;
+        connectionDealer = new ConnectionDealer();
 
         thisApiClient = buildGoogleApiClient(context);
-        connectionDealer = new ConnectionDealer();
         currentId = 0;
         geofencesList = new ArrayList<>();
     }
