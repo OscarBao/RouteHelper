@@ -1,5 +1,7 @@
 package com.android.route_helper;
 
+import com.android.route_helper.LocationTracking.LocationTracker;
+
 import android.*;
 import android.Manifest;
 import android.app.Activity;
@@ -13,7 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Toast;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
+import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.LocationTracking.LocationTracker;
 
 public class LaunchActivity extends AppCompatActivity {
@@ -31,6 +37,8 @@ public class LaunchActivity extends AppCompatActivity {
          */
         LocationTracker locationTracker = new LocationTracker(this);
         MapsManager mapsManager = new MapsManager();
+        Checkpoints checkpoints = new Checkpoints();
+
 
         /*
         DialogInterface.OnClickListener yesNoListener = new DialogInterface.OnClickListener() {
