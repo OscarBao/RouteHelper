@@ -15,17 +15,20 @@ import junit.framework.Test;
  */
 public class MapsManager{
     private static SharedPreferences sp;
-    private Context context;
+    private static Location sourceLoc;
+    private static Location destLoc;
 
-    public MapsManager(Context currContext) {
-        sp = currContext.getSharedPreferences("MyPrefs", 0);
-    }
+    public MapsManager() {};
 
-    public static void loadMap(Context currContext, Class<?> targetClass) {
+    public static void loadMap(Context currContext, String destActivity) {
 
         //ideally, targetClass is the Map Activity
-        Intent switchToMap = new Intent(currContext, targetClass);
-        currContext.startActivity(switchToMap);
+        if(destActivity.equals("Map")) {
+            Intent switchToMap = new Intent(currContext, MapsActivity.class);
+            currContext.startActivity(switchToMap);
+        }
+        else
+            System.out.println("Option invalid");
     }
 
     public static void closeMap(Context currContext, Class<?> targetClass) {
@@ -39,14 +42,36 @@ public class MapsManager{
         currContext.startActivity(switchToMap);
     }
 
+    /*
     public static void saveLocation(Location loc, boolean isSourceLoc) {
         SharedPreferences.Editor editor = sp.edit();
         editor.putString((isSourceLoc) ? "sourceLocLat" : "destLocLat", Double.toString(loc.getLatitude()));
         editor.putString((isSourceLoc) ? "sourceLocLng" : "destLocLng", Double.toString(loc.getLongitude()));
         editor.putString((isSourceLoc) ? "sourceLocProvider" : "destLocProvider", loc.getProvider());
         editor.commit();
+    }*/
+
+    public static void saveLocation(Location loc, boolean isSourceLoc) {
+        if(isSourceLoc)
+            sourceLoc = loc;
+        else
+            destLoc = loc;
     }
 
+    public static Location getLocation(boolean isSource) {
+        if(isSource) {
+            if(sourceLoc == null)
+                System.out.println("Fetching null location");
+            return sourceLoc;
+        }
+        else {
+            if(destLoc == null)
+                System.out.println("Fetching null location");
+            return destLoc;
+        }
+    }
+
+    /*
     public static Location getLocation(boolean isSource) {
         String provider;
         Double lat, lng;
@@ -57,6 +82,6 @@ public class MapsManager{
         loc.setLatitude(lat);
         loc.setLongitude(lng);
         return loc;
-    }
+    }*/
 
 }
