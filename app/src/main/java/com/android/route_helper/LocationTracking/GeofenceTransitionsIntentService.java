@@ -2,9 +2,9 @@ package com.android.route_helper.LocationTracking;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
 import android.util.Log;
 
+import com.android.route_helper.StaticManagers.ToastHandler;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
@@ -44,9 +44,11 @@ public class GeofenceTransitionsIntentService extends IntentService {
         switch(transitionCode) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 //TODO add tasks to perform on enter
+                ToastHandler.displayMessage("Entered geofenced location");
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 //TODO add tasks to perform on exit
+                ToastHandler.displayMessage("Exited geofenced location");
                 break;
             default:
                 break;

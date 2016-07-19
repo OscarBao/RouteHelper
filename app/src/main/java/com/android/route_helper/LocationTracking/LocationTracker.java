@@ -36,10 +36,27 @@ public class LocationTracker {
         geofencesList = new ArrayList<>();
     }
 
+    public static boolean isConnected() {
+        return thisApiClient.isConnected();
+    }
+
+    public static void startTracker() {
+        thisApiClient.connect();
+    }
+
+    public static void endTracker() {
+        thisApiClient.disconnect();
+    }
+
     public static void addLocation(Location loc) {
         addGeofence(loc);
     }
 
+    /**
+     * Gets the geofences that are currently in the default list of geofences and
+     * install them into a geofencing request
+     * @return Geofencing request created from list of default geofences
+     */
     public static GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
@@ -47,9 +64,14 @@ public class LocationTracker {
         return builder.build();
     }
 
-    public synchronized static void addGeofencesToActivity(PendingIntent generatedIntent) {
+    /**
+     * Registers a GeofencingRequest from the default list of locations and registers into PendingIntent
+     * @param pendingIntent PendingIntent created from an activity that is waiting for geofence
+     *                        triggers
+     */
+    public synchronized static void registerAddedGeofencesToIntent(PendingIntent pendingIntent) {
         try {
-            LocationServices.GeofencingApi.addGeofences(thisApiClient, getGeofencingRequest(), generatedIntent);
+            LocationServices.GeofencingApi.addGeofences(thisApiClient, getGeofencingRequest(), pendingIntent);
         }
         catch (SecurityException e) {
             e.printStackTrace();

@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.LocationTracking.LocationTracker;
+import com.android.route_helper.StaticManagers.ToastHandler;
 
 public class LaunchActivity extends AppCompatActivity {
 
@@ -20,6 +21,7 @@ public class LaunchActivity extends AppCompatActivity {
         Perform loading activities
          */
         LocationTracker locationTracker = new LocationTracker(this);
+        ToastHandler toastHandler = new ToastHandler(this);
         Checkpoints checkpoints = new Checkpoints();
 
         Intent toHomeActivity = new Intent(this, homeActivity);
