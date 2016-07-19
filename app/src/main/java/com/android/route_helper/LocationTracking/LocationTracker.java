@@ -29,9 +29,7 @@ public class LocationTracker {
 
     public LocationTracker(Context context) {
         this.context = context;
-        connectionDealer = new ConnectionDealer();
-
-        thisApiClient = buildGoogleApiClient(context);
+        connectionDealer = new ConnectionDealer(context);
         currentId = 0;
         geofencesList = new ArrayList<>();
     }
@@ -91,14 +89,7 @@ public class LocationTracker {
         .build());
     }
 
-    private static GoogleApiClient buildGoogleApiClient(Context context) {
-        return (new GoogleApiClient.Builder(context)
-                .addConnectionCallbacks(connectionDealer)
-                .addOnConnectionFailedListener(connectionDealer)
-                .addApi(LocationServices.API)
-                .build()
-        );
-    }
+
 
     private static String nextRequestId() {
         return (currentId < 1000) ? Integer.toString(currentId++) : Integer.toString(currentId = 0);
@@ -110,6 +101,23 @@ public class LocationTracker {
     private class ConnectionDealer implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
 
         String logTag = "ConnectionDealer";
+        Context context;
+
+        public ConnectionDealer(Context context) {
+            this.context = context;
+            thisApiClient = buildGoogleApiClient(context);
+            startTracker();
+        }
+
+
+        private GoogleApiClient buildGoogleApiClient(Context context) {
+            return (new GoogleApiClient.Builder(context)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build()
+            );
+        }
 
         @Override
         public void onConnected(Bundle connectionHint) {
