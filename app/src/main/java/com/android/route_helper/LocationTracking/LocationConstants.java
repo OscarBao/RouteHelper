@@ -9,4 +9,9 @@ public interface LocationConstants {
 
     double DEFAULT_LOCATION_LATITUDE = 37.723245d;
     double DEFAULT_LOCATION_LONGITUDE = -122.435618d;
+
+    String DEFAULT_LOCATION_STRING = "";
+
+    String FLAG_DESTINATION = "destinationFlag";
+    String FLAG_SOURCE = "sourceFlag";
 }
