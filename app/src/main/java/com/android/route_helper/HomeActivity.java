@@ -1,11 +1,16 @@
 package com.android.route_helper;
 
+
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.location.Location;
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.android.route_helper.LocationTracking.GeofenceTransitionsIntentService;
 import com.android.route_helper.LocationTracking.LocationConstants;
@@ -61,4 +66,11 @@ public class HomeActivity extends AppCompatActivity {
         super.onDestroy();
         LocationTracker.endTracker();
     }
+
+    public void startRoute(View v) {
+        MapsManager.loadMap(this, "Map");
+    }
+
+
+
 }
