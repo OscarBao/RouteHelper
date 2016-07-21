@@ -4,14 +4,9 @@ package com.android.route_helper;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.location.Location;
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -20,20 +15,13 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.security.cert.Certificate;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLPeerUnverifiedException;
 
 import com.android.route_helper.LocationTracking.GeofenceTransitionsIntentService;
 import com.android.route_helper.LocationTracking.LocationConstants;
@@ -50,30 +38,20 @@ public class HomeActivity extends AppCompatActivity {
     private static final String destinationTag = "destinationFlag";
     private static final String sourceTag = "sourceFlag";
 
+    private EditTextListener editTextListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        editTextListener = new EditTextListener();
         startLocation = (EditText) findViewById(R.id.activity_home_edittext_source);
         destLocation = (EditText) findViewById(R.id.activity_home_edittext_destination);
-        startLocation.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    MapsManager.loadMap(HomeActivity.this, sourceTag);
-                }
-            }
-        });
-        destLocation.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    MapsManager.loadMap(HomeActivity.this, destinationTag);
-
-                }
-            }
-        });
+        startLocation.setOnFocusChangeListener(editTextListener);
+        startLocation.setOnClickListener(editTextListener);
+        destLocation.setOnFocusChangeListener(editTextListener);
+        destLocation.setOnClickListener(editTextListener);
 
         //TODO add geofencing pendingintent and inter-activity geofence management
 
@@ -128,6 +106,37 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+
+    /*
+        PRIVATE INNER CLASSES
+     */
+
+    private class EditTextListener implements View.OnFocusChangeListener, View.OnClickListener {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if(v.getId() == R.id.activity_home_edittext_destination) {
+                loadMap(destinationTag);
+            } else if (v.getId() == R.id.activity_home_edittext_source) {
+                loadMap(sourceTag);
+            }
+        }
+        @Override
+        public void onClick(View v) {
+            switch(v.getId()) {
+                case R.id.activity_home_edittext_destination:
+                    loadMap(destinationTag);
+                    break;
+                case R.id.activity_home_edittext_source:
+                    loadMap(sourceTag);
+                    break;
+            }
+        }
+
+        private void loadMap(String tag) {
+            MapsManager.loadMap(HomeActivity.this, tag);
+        }
+    }
+
     private class Connection extends AsyncTask<String,Void,Void> {
         @Override
         protected Void doInBackground(String... params) {
@@ -170,7 +179,12 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    public void startRoute(View v) {
+
+
+    /*
+        PRIVATE METHODS
+     */
+    private void startRoute(View v) {
         String directionURL = "https://maps.googleapis.com/maps/api/directions/json?";
         String methodOfTransportation = "mode=transit";
         String origin = "origin=" + startLocation.getText().toString();

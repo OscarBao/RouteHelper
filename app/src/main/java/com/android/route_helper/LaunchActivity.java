@@ -44,24 +44,6 @@ public class LaunchActivity extends AppCompatActivity {
         Checkpoints checkpoints = new Checkpoints();
 
 
-        /*
-        DialogInterface.OnClickListener yesNoListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(which == DialogInterface.BUTTON_POSITIVE) {
-                    ActivityCompat.requestPermissions(LaunchActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_CODE);
-
-                }
-                else {
-                    //exit app
-                    LaunchActivity.this.finish();
-                }
-            }
-        };
-
-        AlertDialog.Builder locationAlertBuilder = new AlertDialog.Builder(this);
-        locationAlertBuilder.setMessage("Please enable location services").setPositiveButton("Ok", yesNoListener).setNegativeButton("Uhh I don't think so", yesNoListener).show();
-        */
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_CODE);
 
