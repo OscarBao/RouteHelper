@@ -41,6 +41,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         //TODO add geofencing pendingintent and inter-activity geofence management
+        //you are blind bitch
         startLocation = (EditText) findViewById(R.id.activity_home_edittext_source);
         destLocation = (EditText) findViewById(R.id.activity_home_edittext_destination);
         startLocation.setOnFocusChangeListener(new View.OnFocusChangeListener() {
