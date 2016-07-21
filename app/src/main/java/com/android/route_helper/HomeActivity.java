@@ -78,6 +78,7 @@ public class HomeActivity extends AppCompatActivity {
 
         updateUI();
 
+        /*FIXME Figure out a better time to add geofences, likely move this to when the startRoute button is pressed*/
         //Attach a PendingIntent to geofences
         Intent geofenceTriggersIntent = new Intent(this, GeofenceTransitionsIntentService.class);
         if(LocationTracker.isConnected()) {
