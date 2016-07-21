@@ -20,25 +20,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Starting Location:"
-        android:layout_marginTop="@dimen/activity_home_menu_margin"
         android:layout_marginLeft="@dimen/activity_home_menu_margin"
         android:id="@+id/activity_home_textview_prompt_source"
         android:textSize="15sp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:layout_below="@+id/activity_home_textview_home" />
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/activity_home_edittext_source"
+        android:layout_alignBottom="@+id/activity_home_edittext_source" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Destination:"
         android:id="@+id/activity_home_textview_prompt_destination"
-        android:layout_below="@+id/activity_home_textview_prompt_source"
         android:layout_alignEnd="@+id/activity_home_textview_prompt_source"
-        android:layout_marginTop="15dp"
         android:textSize="15sp"
         android:paddingTop="10dp"
-        android:paddingBottom="10dp" />
+        android:paddingBottom="10dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="@dimen/activity_home_menu_margin"
+        android:layout_alignBottom="@+id/activity_home_edittext_destination"
+        android:layout_alignTop="@+id/activity_home_edittext_destination" />
 
     <Button
         android:layout_width="wrap_content"
@@ -55,12 +58,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/activity_home_edittext_source"
-        android:layout_alignTop="@+id/activity_home_textview_prompt_source"
         android:layout_alignStart="@+id/activity_home_button_startroute"
-        android:layout_alignBottom="@+id/activity_home_textview_prompt_source"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="@dimen/activity_home_menu_margin"
-        android:hint="Select starting location" />
+        android:hint="Select start"
+        android:layout_below="@+id/activity_home_textview_home"
+        android:layout_marginTop="@dimen/activity_home_menu_margin" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -68,9 +71,9 @@
         android:id="@+id/activity_home_edittext_destination"
         android:layout_marginRight="@dimen/activity_home_menu_margin"
         android:hint="Select destination"
-        android:layout_alignTop="@+id/activity_home_textview_prompt_destination"
         android:layout_toEndOf="@+id/activity_home_textview_prompt_destination"
-        android:layout_alignBottom="@+id/activity_home_textview_prompt_destination" />
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/activity_home_edittext_source" />
 
     <TextView
         android:layout_width="wrap_content"

@@ -38,11 +38,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private EditText startLocation;
     private EditText destLocation;
-    String defaultLocString = "Default loc";
-    private static final String destinationTag = "destinationFlag";
-    private static final String sourceTag = "sourceFlag";
 
-    private EditTextListener editTextListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +46,8 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        editTextListener = new EditTextListener();
+        //Set up the interactive edittext fields
+        EditTextListener editTextListener = new EditTextListener();
         startLocation = (EditText) findViewById(R.id.activity_home_edittext_source);
         destLocation = (EditText) findViewById(R.id.activity_home_edittext_destination);
         startLocation.setOnFocusChangeListener(editTextListener);
@@ -58,19 +55,16 @@ public class HomeActivity extends AppCompatActivity {
         destLocation.setOnFocusChangeListener(editTextListener);
         destLocation.setOnClickListener(editTextListener);
 
-        //TODO add geofencing pendingintent and inter-activity geofence management
-
+        //Set up geofencing
+        /*FIXME Setting up a default location for testing purposes. Delete after*/
         Location defaultLocation = new Location("");
         defaultLocation.setLatitude(LocationConstants.DEFAULT_LOCATION_LATITUDE);
         defaultLocation.setLongitude(LocationConstants.DEFAULT_LOCATION_LONGITUDE);
         LocationTracker.addLocation(defaultLocation);
 
 
-        //Creating PendingIntent to register geofences into
+        //Attach PendingIntent to geofences
         Intent geofenceTriggersIntent = new Intent(this, GeofenceTransitionsIntentService.class);
-
-
-        //When geofences need to be added, place below code into process
         if(LocationTracker.isConnected()) {
             Log.i(logTag, "Location Tracker connected -- adding geofences to intent");
             LocationTracker.registerAddedGeofencesToIntent(
@@ -86,15 +80,10 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        System.out.println("at on resume");
-        if(MapsManager.hasLocation(sourceTag)) {
-            startLocation.setText(MapsManager.getLocation(sourceTag).getLatitude() + "," + MapsManager.getLocation(sourceTag).getLongitude());
-        } else startLocation.setText(defaultLocString);
+        updateUI();
 
-        if (MapsManager.hasLocation(destinationTag)) {
-            destLocation.setText(MapsManager.getLocation(destinationTag).getLatitude() + "," + MapsManager.getLocation(destinationTag).getLongitude());
-        } else destLocation.setText(defaultLocString);
-
+        /*FIXME Figure out a better time to add geofences, likely move this to when the startRoute button is pressed*/
+        //Attach a PendingIntent to geofences
         Intent geofenceTriggersIntent = new Intent(this, GeofenceTransitionsIntentService.class);
         if(LocationTracker.isConnected()) {
             Log.i(logTag, "Location Tracker connected -- adding geofences to intent");
@@ -139,9 +128,9 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if(v.getId() == R.id.activity_home_edittext_destination) {
-                if(hasFocus) loadMap(destinationTag);
+                if(hasFocus) loadMap(LocationConstants.FLAG_DESTINATION);
             } else if (v.getId() == R.id.activity_home_edittext_source) {
-                if(hasFocus) loadMap(sourceTag);
+                if(hasFocus) loadMap(LocationConstants.FLAG_SOURCE);
             }
         }
 
@@ -149,10 +138,10 @@ public class HomeActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch(v.getId()) {
                 case R.id.activity_home_edittext_destination:
-                    loadMap(destinationTag);
+                    loadMap(LocationConstants.FLAG_DESTINATION);
                     break;
                 case R.id.activity_home_edittext_source:
-                    loadMap(sourceTag);
+                    loadMap(LocationConstants.FLAG_SOURCE);
                     break;
             }
         }
@@ -242,8 +231,20 @@ public class HomeActivity extends AppCompatActivity {
     /*
         PRIVATE METHODS
      */
+    private void updateUI() {
+        //Fill in the EditText fields to have friendly location data
+        String source = LocationConstants.FLAG_SOURCE;
+        String destination = LocationConstants.FLAG_DESTINATION;
+        String displayText = "";
+        if(MapsManager.hasLocation(source)) {
+            displayText = MapsManager.getLocation(source).getLatitude() + "," + MapsManager.getLocation(source).getLongitude();
+            startLocation.setText(displayText);
+        } else startLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
 
+        if (MapsManager.hasLocation(destination)) {
+            displayText = MapsManager.getLocation(destination).getLatitude() + "," + MapsManager.getLocation(destination).getLongitude();
+            destLocation.setText(displayText);
+        } else destLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
 
-
-
+    }
 }
