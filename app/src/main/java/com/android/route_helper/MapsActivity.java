@@ -1,6 +1,9 @@
 package com.android.route_helper;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -12,11 +15,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private String locationFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +31,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        locationFlag = getIntent().getStringExtra("flag");
     }
 
 
@@ -49,10 +55,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // Show rationale and request permission.
         }
 
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions().position(latLng).title("wut"));
+            }
+        });
+
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                final Location loc = new Location(LocationManager.GPS_PROVIDER);
+                loc.setLongitude(marker.getPosition().longitude);
+                loc.setLatitude(marker.getPosition().latitude);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+                builder.setMessage("Save Location?");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MapsManager.saveLocation(loc, locationFlag);
+                        MapsManager.closeMap(MapsActivity.this, null);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.show();
+                return true;
+                /*
+                showToast("Saving this marker to source");
+                Location loc = new Location(LocationManager.GPS_PROVIDER);
+                loc.setLongitude(marker.getPosition().longitude);
+                loc.setLongitude(marker.getPosition().latitude);
+                MapsManager.saveLocation(loc, true);
+                System.out.println(MapsManager.getLocation(true).toString());
+                return true;
+                */
+            }
+        });
+
         // Add a marker in Sydney and move the camera
+        /*
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        */
+    }
+
+    private void showToast(String text) {
+        Toast.makeText(MapsActivity.this, text, Toast.LENGTH_SHORT).show();
     }
 
 
