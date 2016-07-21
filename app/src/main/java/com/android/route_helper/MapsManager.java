@@ -6,9 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.Bundle;
 import android.widget.BaseAdapter;
 
 import junit.framework.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Erik Mei on 6/30/2016.
@@ -17,24 +21,26 @@ public class MapsManager{
     private static SharedPreferences sp;
     private static Location sourceLoc;
     private static Location destLoc;
+    private static HashMap<String, Location> flagMap;
+    private static int REQUEST_GET_MAP_LOC = 0;
 
-    public MapsManager() {};
+    public MapsManager() {
+        flagMap = new HashMap<>();
+    };
 
-    public static void loadMap(Context currContext, String destActivity) {
+    public static void loadMap(Context currContext, String flag) {
 
         //ideally, targetClass is the Map Activity
-        if(destActivity.equals("Map")) {
-            Intent switchToMap = new Intent(currContext, MapsActivity.class);
-            currContext.startActivity(switchToMap);
-        }
-        else
-            System.out.println("Option invalid");
+        Intent switchToMap = new Intent(currContext, MapsActivity.class);
+        switchToMap.putExtra("flag", flag);
+        ((Activity)currContext).startActivityForResult(switchToMap, REQUEST_GET_MAP_LOC);
+
     }
 
     public static void closeMap(Context currContext, Class<?> targetClass) {
-
         if(targetClass == null) {
             //Go to previous screen if none has been specified
+            //((Activity)currContext).setResult(Activity.RESULT_OK, new Intent().putExtra("isSource", isSource));
             ((Activity)currContext).finish();
             return;
         }
@@ -51,24 +57,16 @@ public class MapsManager{
         editor.commit();
     }*/
 
-    public static void saveLocation(Location loc, boolean isSourceLoc) {
-        if(isSourceLoc)
-            sourceLoc = loc;
-        else
-            destLoc = loc;
+    public static void saveLocation(Location loc, String flag) {
+        flagMap.put(flag, loc);
     }
 
-    public static Location getLocation(boolean isSource) {
-        if(isSource) {
-            if(sourceLoc == null)
-                System.out.println("Fetching null location");
-            return sourceLoc;
-        }
-        else {
-            if(destLoc == null)
-                System.out.println("Fetching null location");
-            return destLoc;
-        }
+    public static Location getLocation(String flag) {
+        return flagMap.get(flag);
+    }
+
+    public static boolean hasLocation(String flag) {
+        return flagMap.containsKey(flag);
     }
 
     /*
