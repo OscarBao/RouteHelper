@@ -55,6 +55,25 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        startLocation = (EditText) findViewById(R.id.activity_home_edittext_source);
+        destLocation = (EditText) findViewById(R.id.activity_home_edittext_destination);
+        startLocation.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+                    MapsManager.loadMap(HomeActivity.this, sourceTag);
+                }
+            }
+        });
+        destLocation.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+                    MapsManager.loadMap(HomeActivity.this, destinationTag);
+
+                }
+            }
+        });
 
         //TODO add geofencing pendingintent and inter-activity geofence management
 
@@ -107,25 +126,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onDestroy();
         LocationTracker.endTracker();
 
-        startLocation = (EditText) findViewById(R.id.activity_home_edittext_source);
-        destLocation = (EditText) findViewById(R.id.activity_home_edittext_destination);
-        startLocation.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    MapsManager.loadMap(HomeActivity.this, sourceTag);
-                }
-            }
-        });
-        destLocation.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    MapsManager.loadMap(HomeActivity.this, destinationTag);
-
-                }
-            }
-        });
     }
 
     private class Connection extends AsyncTask<String,Void,Void> {
