@@ -111,8 +111,10 @@ public class HomeActivity extends AppCompatActivity {
         }
         String apiKey = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
         directionURL += origin + "&" + destination + "&" + methodOfTransportation + "&" + apiKey;
+        System.out.println(directionURL);
         Connection conn = new Connection();
-        conn.execute("https://maps.googleapis.com/maps/api/directions/json?origin=place_id:ChIJY-C3tIh-j4AR0BLzcg4YzlQ&destination=place_id:Ei4yLTk4IFRydW1idWxsIFN0LCBTYW4gRnJhbmNpc2NvLCBDQSA5NDExMiwgVVNB&mode=transit&key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8");
+        conn.execute(directionURL);
+        //conn.execute("https://maps.googleapis.com/maps/api/directions/json?origin=place_id:ChIJY-C3tIh-j4AR0BLzcg4YzlQ&destination=place_id:Ei4yLTk4IFRydW1idWxsIFN0LCBTYW4gRnJhbmNpc2NvLCBDQSA5NDExMiwgVVNB&mode=transit&key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8");
 
         //System.out.println("Connected");
 
