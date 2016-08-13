@@ -23,6 +23,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
     @Override
     public void onHandleIntent(Intent intent) {
+        Log.i(logTag, "Found a geofencing event");
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if(geofencingEvent.hasError()) {
             Log.e(logTag, GeofenceStatusCodes.getStatusCodeString(geofencingEvent.getErrorCode()));
@@ -44,11 +45,11 @@ public class GeofenceTransitionsIntentService extends IntentService {
         switch(transitionCode) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 //TODO add tasks to perform on enter
-                ToastHandler.displayMessage("Entered geofenced location");
+                //ToastHandler.displayMessage(getApplicationContext(), "Entered geofenced location");
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 //TODO add tasks to perform on exit
-                ToastHandler.displayMessage("Exited geofenced location");
+                //ToastHandler.displayMessage(getApplicationContext(), "Exited geofenced location");
                 break;
             default:
                 break;
