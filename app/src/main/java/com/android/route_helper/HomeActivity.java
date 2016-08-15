@@ -1,14 +1,13 @@
 package com.android.route_helper;
 
 
-import android.app.PendingIntent;
-import android.content.Intent;
+import android.content.Context;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -22,14 +21,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import com.android.route_helper.CheckpointManaging.Checkpoint;
 import com.android.route_helper.CheckpointManaging.Checkpoints;
-import com.android.route_helper.LocationTracking.GeofenceTransitionsIntentService;
+import com.android.route_helper.LocationTracking.GeofencesManager;
 import com.android.route_helper.LocationTracking.LocationConstants;
-import com.android.route_helper.LocationTracking.LocationTracker;
+import com.android.route_helper.StaticManagers.ToastHandler;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -40,11 +40,40 @@ public class HomeActivity extends AppCompatActivity {
     private EditText destLocation;
 
 
+    ArrayList<Location> locationsList;
+    GeofencesManager geofencesManager;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        System.out.println("at on create");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
+        };
+
+
+        try {
+            // Register the listener with the Location Manager to receive location updates
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 100, locationListener);
+        }
+        catch( SecurityException e) {
+            e.printStackTrace();
+        }
+
+        locationsList = new ArrayList<>();
+        geofencesManager = new GeofencesManager(this);
 
         //Set up the interactive edittext fields
         EditTextListener editTextListener = new EditTextListener();
@@ -60,44 +89,26 @@ public class HomeActivity extends AppCompatActivity {
         Location defaultLocation = new Location("");
         defaultLocation.setLatitude(LocationConstants.DEFAULT_LOCATION_LATITUDE);
         defaultLocation.setLongitude(LocationConstants.DEFAULT_LOCATION_LONGITUDE);
-        LocationTracker.addLocation(defaultLocation);
 
+        locationsList.add(defaultLocation);
 
-        //Attach PendingIntent to geofences
-        Intent geofenceTriggersIntent = new Intent(this, GeofenceTransitionsIntentService.class);
-        if(LocationTracker.isConnected()) {
-            Log.i(logTag, "Location Tracker connected -- adding geofences to intent");
-            LocationTracker.registerAddedGeofencesToIntent(
-                    PendingIntent.getService(this, 0, geofenceTriggersIntent, PendingIntent.FLAG_UPDATE_CURRENT));
-        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        geofencesManager.bootGeofencingWithLocations(locationsList);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         updateUI();
-
-        /*FIXME Figure out a better time to add geofences, likely move this to when the startRoute button is pressed*/
-        //Attach a PendingIntent to geofences
-        Intent geofenceTriggersIntent = new Intent(this, GeofenceTransitionsIntentService.class);
-        if(LocationTracker.isConnected()) {
-            Log.i(logTag, "Location Tracker connected -- adding geofences to intent");
-            LocationTracker.registerAddedGeofencesToIntent(
-                    PendingIntent.getService(this, 0, geofenceTriggersIntent, PendingIntent.FLAG_UPDATE_CURRENT));
-        }
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LocationTracker.endTracker();
-
     }
 
     public void startRoute(View v) {
@@ -106,7 +117,7 @@ public class HomeActivity extends AppCompatActivity {
         String origin = "origin=" + startLocation.getText().toString();
         String destination = "destination=" + destLocation.getText().toString();
         if(origin.equals("origin=Default loc") || destination.equals("destination=Default loc")) {
-            Toast.makeText(this, "Both origin and destination need a location", Toast.LENGTH_SHORT).show();
+            ToastHandler.displayMessage(this, "Both origin and destination need a location");
             return;
         }
         String apiKey = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
@@ -119,6 +130,7 @@ public class HomeActivity extends AppCompatActivity {
         //System.out.println("Connected");
 
         //MapsManager.loadMap(this, "Map", false);
+
     }
 
 
@@ -233,9 +245,12 @@ public class HomeActivity extends AppCompatActivity {
 
 
 
+
     /*
         PRIVATE METHODS
      */
+
+
     private void updateUI() {
         //Fill in the EditText fields to have friendly location data
         String source = LocationConstants.FLAG_SOURCE;

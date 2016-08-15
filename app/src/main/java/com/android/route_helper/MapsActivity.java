@@ -9,8 +9,10 @@ import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.widget.Toast;
+
 import com.android.route_helper.CheckpointManaging.*;
+
+import com.android.route_helper.StaticManagers.ToastHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -54,7 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
         } else {
-            Toast.makeText(this, "Sum ting wong", Toast.LENGTH_SHORT).show();
+            ToastHandler.displayMessage(this, "Sum ting wong");
             // Show rationale and request permission.
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sf, 15));
@@ -101,7 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 */
             }
         });
-        showToast(locationFlag);
+        ToastHandler.displayMessage(this, locationFlag);
         if(locationFlag.equals("startRoute")) {
             int i = 0;
             while(!Checkpoints.atEnd()) {
@@ -127,10 +129,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
         */
-    }
-
-    private void showToast(String text) {
-        Toast.makeText(MapsActivity.this, text, Toast.LENGTH_SHORT).show();
     }
 
 
