@@ -39,6 +39,7 @@ public class HomeActivity extends AppCompatActivity {
     private EditText startLocation;
     private EditText destLocation;
 
+    ArrayList<Location> defaultLocationsList;
 
     GeofencesManager geofencesManager;
 
@@ -59,22 +60,34 @@ public class HomeActivity extends AppCompatActivity {
         destLocation.setOnFocusChangeListener(editTextListener);
         destLocation.setOnClickListener(editTextListener);
 
+        defaultLocationsList = new ArrayList<>();
+        Location firstDefaultLoc = new Location("");
+        firstDefaultLoc.setLatitude(LocationConstants.DEFAULT_LOCATION_LATITUDE);
+        firstDefaultLoc.setLongitude(LocationConstants.DEFAULT_LOCATION_LONGITUDE);
+        Location secondDefaultLoc = new Location("");
+        secondDefaultLoc.setLatitude(9.046496d);
+        secondDefaultLoc.setLongitude(21.467285);
+        defaultLocationsList.add(firstDefaultLoc);
+        defaultLocationsList.add(secondDefaultLoc);
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        geofencesManager.bootGeofencingWithLocations(defaultLocationsList);
         geofencesManager.startLocationTracking();
     }
 
-    private void bootGeofences() {
-       geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
-    }
 
     @Override
     public void onResume() {
         super.onResume();
         updateUI();
+    }
+
+    private void bootGeofences() {
+        geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
     }
 
     @Override
