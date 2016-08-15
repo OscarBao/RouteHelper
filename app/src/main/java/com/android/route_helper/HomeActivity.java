@@ -158,6 +158,7 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             try {
+                Checkpoints.clear();
                 URL url = new URL(params[0]);
                 HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
                 BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -200,12 +201,13 @@ public class HomeActivity extends AppCompatActivity {
                         Checkpoints.add(c);
                     }
                 }
+                /*
                 while(!Checkpoints.atEnd()) {
                     Checkpoint c = Checkpoints.currentCheckpoint();
                     System.out.println(c.getLocation().toString());
                     System.out.println(c.getTypeCode());
                     Checkpoints.moveToNext();
-                }
+                }*/
             }
 
 
@@ -225,6 +227,7 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            MapsManager.loadMap(HomeActivity.this, "startRoute");
         }
     }
 

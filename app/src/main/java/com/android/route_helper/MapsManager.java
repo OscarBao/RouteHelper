@@ -33,7 +33,7 @@ public class MapsManager{
         //ideally, targetClass is the Map Activity
         Intent switchToMap = new Intent(currContext, MapsActivity.class);
         switchToMap.putExtra("flag", flag);
-        ((Activity)currContext).startActivityForResult(switchToMap, REQUEST_GET_MAP_LOC);
+        ((Activity)currContext).startActivity(switchToMap);
 
     }
 

@@ -3,13 +3,14 @@ package com.android.route_helper;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
-
+import com.android.route_helper.CheckpointManaging.*;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -17,11 +18,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private String locationFlag;
+    private LatLng sf = new LatLng(37.7749, -122.4194);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +57,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "Sum ting wong", Toast.LENGTH_SHORT).show();
             // Show rationale and request permission.
         }
-
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sf, 15));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -98,6 +101,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 */
             }
         });
+        showToast(locationFlag);
+        if(locationFlag.equals("startRoute")) {
+            int i = 0;
+            while(!Checkpoints.atEnd()) {
+                Checkpoint c = Checkpoints.currentCheckpoint();
+                LatLng beginCheckpoint = new LatLng(c.getLocation().getLatitude(), c.getLocation().getLongitude());
+                System.out.println(beginCheckpoint);
+                mMap.addMarker(new MarkerOptions().position(beginCheckpoint).title("Checkpoint" + i));
+                //System.out.println(c.getLocation().toString());
+                Checkpoints.moveToNext();
+                if(Checkpoints.atEnd()) {
+                    break;
+                }
+                c = Checkpoints.currentCheckpoint();
+                LatLng endCheckpoint = new LatLng(c.getLocation().getLatitude(), c.getLocation().getLongitude());
+                mMap.addPolyline(new PolylineOptions().add(beginCheckpoint).add(endCheckpoint).width(5).color(Color.RED));
+                i++;
+            }
+        }
 
         // Add a marker in Sydney and move the camera
         /*
