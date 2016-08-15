@@ -67,7 +67,7 @@ public class HomeActivity extends AppCompatActivity {
         geofencesManager.startLocationTracking();
     }
 
-    public void bootGeofences() {
+    private void bootGeofences() {
        geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
     }
 
