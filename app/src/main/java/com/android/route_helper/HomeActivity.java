@@ -210,6 +210,7 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            bootGeofences();
             MapsManager.loadMap(HomeActivity.this, "startRoute");
         }
     }

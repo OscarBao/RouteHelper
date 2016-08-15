@@ -1,7 +1,11 @@
 package com.android.route_helper;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -27,6 +31,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private String locationFlag;
     private LatLng sf = new LatLng(37.7749, -122.4194);
+    private BroadcastReceiver broadcastReceiver;
+    private IntentFilter intentFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +57,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        intentFilter = new IntentFilter("nextStep");
+        broadcastReceiver = new GeofenceReceiver();
+        registerReceiver(broadcastReceiver, intentFilter);
         mMap = googleMap;
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -105,23 +114,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
         ToastHandler.displayMessage(this, locationFlag);
         if(locationFlag.equals("startRoute")) {
-            int i = 0;
-            while(!Checkpoints.atEnd()) {
-                Checkpoint c = Checkpoints.currentCheckpoint();
-                LatLng beginCheckpoint = new LatLng(c.getLocation().getLatitude(), c.getLocation().getLongitude());
+                Checkpoint beginCheckpoint = Checkpoints.currentCheckpoint();
+                LatLng beginCheckpointLocation = new LatLng(beginCheckpoint.getLocation().getLatitude(), beginCheckpoint.getLocation().getLongitude());
                 System.out.println(beginCheckpoint);
-                mMap.addMarker(new MarkerOptions().position(beginCheckpoint).title("Checkpoint" + i));
+                mMap.addMarker(new MarkerOptions().position(beginCheckpointLocation).title("Checkpoint something" ));
                 //System.out.println(c.getLocation().toString());
                 Checkpoints.moveToNext();
-                if(Checkpoints.atEnd()) {
-                    break;
+                if(Checkpoints.atEnd())
+                    ToastHandler.displayMessage(this, "At end of list");
+                else {
+                    Checkpoint endCheckpoint = Checkpoints.currentCheckpoint();
+                    LatLng endCheckpointLocation = new LatLng(endCheckpoint.getLocation().getLatitude(), endCheckpoint.getLocation().getLongitude());
+                    mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title("Checkpoint something else"));
+                    mMap.addPolyline(new PolylineOptions().add(beginCheckpointLocation).add(endCheckpointLocation).width(5)
+                            .color((beginCheckpoint.getTypeCode() == 1) ? Color.RED : Color.BLUE));
                 }
-                c = Checkpoints.currentCheckpoint();
-                LatLng endCheckpoint = new LatLng(c.getLocation().getLatitude(), c.getLocation().getLongitude());
-                mMap.addPolyline(new PolylineOptions().add(beginCheckpoint).add(endCheckpoint).width(5).color(Color.RED));
-                i++;
             }
-        }
+
 
         // Add a marker in Sydney and move the camera
         /*
@@ -129,6 +138,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
         */
+    }
+
+    private class GeofenceReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle b = intent.getExtras();
+        }
     }
 
 
