@@ -75,7 +75,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        geofencesManager.bootGeofencingWithLocations(defaultLocationsList);
+        //geofencesManager.bootGeofencingWithLocations(defaultLocationsList);
         geofencesManager.startLocationTracking();
     }
 

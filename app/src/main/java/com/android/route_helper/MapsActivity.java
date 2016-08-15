@@ -45,6 +45,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationFlag = getIntent().getStringExtra("flag");
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
+    }
+
+
 
     /**
      * Manipulates the map once available.
