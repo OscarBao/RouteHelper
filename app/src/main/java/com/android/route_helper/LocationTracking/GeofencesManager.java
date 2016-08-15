@@ -30,9 +30,11 @@ public class GeofencesManager {
     private ConnectionDealer connectionDealer;
     private ArrayList<Geofence> geofenceList;
     private GeofencingRequest geofencingRequest;
-    private String currentRequestId = "";
+    private int currentRequestNum;
+
 
     public GeofencesManager(Context context) {
+        currentRequestNum = 0;
         this.appContext = context;
         connectionDealer = new ConnectionDealer();
         apiClient = buildGoogleApiClient(appContext);
@@ -77,6 +79,7 @@ public class GeofencesManager {
     /*
         PRIVATE HELPER METHODS
      */
+
     private GoogleApiClient buildGoogleApiClient(Context context) {
         return (new GoogleApiClient.Builder(context)
                 .addApi(LocationServices.API)
@@ -103,9 +106,8 @@ public class GeofencesManager {
     private ArrayList<Geofence> toGeofenceList(ArrayList<Location> locations) {
         ArrayList<Geofence> geofences = new ArrayList<>();
         for(int i = 0; i < locations.size(); i++) {
-            currentRequestId += "c";
             geofences.add(new Geofence.Builder()
-                    .setRequestId(currentRequestId)
+                    .setRequestId(getNewRequestId())
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                             Geofence.GEOFENCE_TRANSITION_EXIT)
                     .setCircularRegion(locations.get(i).getLatitude(), locations.get(i).getLongitude(),
@@ -128,6 +130,13 @@ public class GeofencesManager {
         }
     }
 
+
+
+    private String getNewRequestId() {
+        String requestId = Integer.toString(currentRequestNum);
+        currentRequestNum++;
+        return requestId;
+    }
     /*
         INNER CLASS
      */

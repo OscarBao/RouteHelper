@@ -31,9 +31,13 @@ public class GeofenceTransitionsIntentService extends IntentService {
         }
         int geofenceTransitionCode = geofencingEvent.getGeofenceTransition();
 
+
+
         if(geofenceTransitionCode == Geofence.GEOFENCE_TRANSITION_ENTER ||
                 geofenceTransitionCode == Geofence.GEOFENCE_TRANSITION_EXIT) {
-            performGeofenceProcessing(geofenceTransitionCode);
+            for(Geofence gf : geofencingEvent.getTriggeringGeofences()) {
+                performGeofenceProcessing(geofenceTransitionCode, gf);
+            }
         }
     }
 
@@ -41,11 +45,16 @@ public class GeofenceTransitionsIntentService extends IntentService {
     /*
         Private methods
      */
-    private void performGeofenceProcessing(int transitionCode) {
+    private void performGeofenceProcessing(int transitionCode, Geofence gf) {
+
+        Intent nextStepIntent = new Intent("nextStep");
+        nextStepIntent.putExtra("requestId", gf.getRequestId());
+        sendBroadcast(nextStepIntent);
+
+
         switch(transitionCode) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 //TODO add tasks to perform on enter
-                //ToastHandler.displayMessage(getApplicationContext(), "Entered geofenced location");
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 //TODO add tasks to perform on exit

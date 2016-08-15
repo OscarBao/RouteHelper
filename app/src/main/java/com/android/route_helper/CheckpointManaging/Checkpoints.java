@@ -2,6 +2,8 @@ package com.android.route_helper.CheckpointManaging;
 
 import android.location.Location;
 
+import com.google.android.gms.location.Geofence;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -38,7 +40,39 @@ public class Checkpoints implements Iterable<Checkpoint> {
         return spit;
     }
 
+    public static void pointToGeofence(String geofenceRequestId) {
+        if(isInteger(geofenceRequestId)) {
+            if(Integer.parseInt(geofenceRequestId) < checkpointsList.size()) {
+                currentCheckpointIndex = Integer.parseInt(geofenceRequestId);
+            }
+            else {
+                return;
+            }
+        }
+    }
+
+    public static void pointToGeofence(Geofence geofence) {
+        String id = geofence.getRequestId();
+        if(isInteger(id)) {
+            if(Integer.parseInt(id) < checkpointsList.size()) {
+                currentCheckpointIndex = Integer.parseInt(id);
+            }
+            else {
+                return;
+            }
+        }
+    }
+
     /*
         Private methods
      */
+    private static boolean isInteger(String input) {
+        try {
+            Integer.parseInt(input);
+            return true;
+        }
+        catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }
