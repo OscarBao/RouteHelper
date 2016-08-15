@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -43,6 +45,32 @@ public class GeofencesManager {
     public void bootGeofencingWithGeofences(ArrayList<Geofence> geofenceList) {
         this.geofenceList = geofenceList;
         apiClient.connect();
+    }
+
+    public void startLocationTracking() {
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) appContext.getSystemService(Context.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
+        };
+
+
+        try {
+            // Register the listener with the Location Manager to receive location updates
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 100, locationListener);
+        }
+        catch( SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
 

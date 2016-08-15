@@ -40,7 +40,6 @@ public class HomeActivity extends AppCompatActivity {
     private EditText destLocation;
 
 
-    ArrayList<Location> locationsList;
     GeofencesManager geofencesManager;
 
 
@@ -48,31 +47,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        // Acquire a reference to the system Location Manager
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-        // Define a listener that responds to location updates
-        LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-            public void onProviderEnabled(String provider) {}
-
-            public void onProviderDisabled(String provider) {}
-        };
-
-
-        try {
-            // Register the listener with the Location Manager to receive location updates
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 100, locationListener);
-        }
-        catch( SecurityException e) {
-            e.printStackTrace();
-        }
-
-        locationsList = new ArrayList<>();
         geofencesManager = new GeofencesManager(this);
 
         //Set up the interactive edittext fields
@@ -84,20 +59,16 @@ public class HomeActivity extends AppCompatActivity {
         destLocation.setOnFocusChangeListener(editTextListener);
         destLocation.setOnClickListener(editTextListener);
 
-        //Set up geofencing
-        /*FIXME Setting up a default location for testing purposes. Delete after*/
-        Location defaultLocation = new Location("");
-        defaultLocation.setLatitude(LocationConstants.DEFAULT_LOCATION_LATITUDE);
-        defaultLocation.setLongitude(LocationConstants.DEFAULT_LOCATION_LONGITUDE);
-
-        locationsList.add(defaultLocation);
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        geofencesManager.bootGeofencingWithLocations(locationsList);
+        geofencesManager.startLocationTracking();
+    }
+
+    public void bootGeofences() {
+       geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
     }
 
     @Override

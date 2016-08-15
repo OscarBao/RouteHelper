@@ -1,5 +1,7 @@
 package com.android.route_helper.CheckpointManaging;
 
+import android.location.Location;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -27,6 +29,14 @@ public class Checkpoints implements Iterable<Checkpoint> {
     public static void moveToNext() {currentCheckpointIndex++;}
     public static Checkpoint currentCheckpoint() {return checkpointsList.get(currentCheckpointIndex);}
     public static boolean atEnd() {return currentCheckpointIndex >= checkpointsList.size();}
+
+    public static ArrayList<Location> locationsList() {
+        ArrayList<Location> spit = new ArrayList<>();
+        for(Checkpoint cp : checkpointsList) {
+            spit.add(cp.getLocation());
+        }
+        return spit;
+    }
 
     /*
         Private methods
