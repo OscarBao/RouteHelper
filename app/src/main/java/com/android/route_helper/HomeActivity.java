@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -29,19 +30,21 @@ import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import com.android.route_helper.Abstract.RefreshActivity;
 import com.android.route_helper.CheckpointManaging.Checkpoint;
 import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.LocationTracking.GeofencesManager;
 import com.android.route_helper.LocationTracking.LocationConstants;
 import com.android.route_helper.StaticManagers.ToastHandler;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends RefreshActivity {
 
 
     String logTag = "HomeActivity";
 
     private EditText startLocation;
     private EditText destLocation;
+    private Button startRouteButton;
 
     Geocoder geocoder;
 
@@ -62,10 +65,13 @@ public class HomeActivity extends AppCompatActivity {
         EditTextListener editTextListener = new EditTextListener();
         startLocation = (EditText) findViewById(R.id.activity_home_edittext_source);
         destLocation = (EditText) findViewById(R.id.activity_home_edittext_destination);
+        startRouteButton = (Button) findViewById(R.id.activity_home_button_startroute);
+
         startLocation.setOnFocusChangeListener(editTextListener);
         startLocation.setOnClickListener(editTextListener);
         destLocation.setOnFocusChangeListener(editTextListener);
         destLocation.setOnClickListener(editTextListener);
+        startRouteButton.setOnClickListener(new StartRouteListener());
 
         defaultLocationsList = new ArrayList<>();
         Location firstDefaultLoc = new Location("");
@@ -87,13 +93,6 @@ public class HomeActivity extends AppCompatActivity {
         geofencesManager.startLocationTracking();
     }
 
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateUI();
-    }
-
     private void bootGeofences() {
         for(Location loc : Checkpoints.locationsList()) {
             String name = "";
@@ -109,41 +108,39 @@ public class HomeActivity extends AppCompatActivity {
         geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    public void startRoute(View v) {
-        String directionURL = "https://maps.googleapis.com/maps/api/directions/json?";
-        String methodOfTransportation = "mode=transit";
-        String origin = "origin=" + MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLatitude() + "," +
-                MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLongitude();
-        String destination = "destination=" + MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLatitude() + "," +
-                                            MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLongitude();
-        Log.i(logTag, "Here is your source: " + origin);
-        Log.i(logTag, "Here is your destination: " + destination);
-        if(origin.equals("origin=Default loc") || destination.equals("destination=Default loc")) {
-            ToastHandler.displayMessage(this, "Both origin and destination need a location");
-            return;
-        }
-        String apiKey = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
-        directionURL += origin + "&" + destination + "&" + methodOfTransportation + "&" + apiKey;
-        System.out.println(directionURL);
-        Connection conn = new Connection();
-        conn.execute(directionURL);
-        //conn.execute("https://maps.googleapis.com/maps/api/directions/json?origin=place_id:ChIJY-C3tIh-j4AR0BLzcg4YzlQ&destination=place_id:Ei4yLTk4IFRydW1idWxsIFN0LCBTYW4gRnJhbmNpc2NvLCBDQSA5NDExMiwgVVNB&mode=transit&key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8");
-
-        //System.out.println("Connected");
-
-        //MapsManager.loadMap(this, "Map", false);
-
-    }
-
-
     /*
         PRIVATE INNER CLASSES
      */
+    private class StartRouteListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if(v.getId() == R.id.activity_home_button_startroute) {
+                startRoute();
+            }
+        }
+
+        private void startRoute() {
+            String directionURL = "https://maps.googleapis.com/maps/api/directions/json?";
+            String methodOfTransportation = "mode=transit";
+            String origin = "origin=" + MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLatitude() + "," +
+                    MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLongitude();
+            String destination = "destination=" + MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLatitude() + "," +
+                    MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLongitude();
+            Log.i(logTag, "Here is your source: " + origin);
+            Log.i(logTag, "Here is your destination: " + destination);
+            if(origin.equals("origin=Default loc") || destination.equals("destination=Default loc")) {
+                ToastHandler.displayMessage(getApplicationContext(), "Both origin and destination need a location");
+                return;
+            }
+            String apiKey = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
+            directionURL += origin + "&" + destination + "&" + methodOfTransportation + "&" + apiKey;
+            System.out.println(directionURL);
+            Connection conn = new Connection();
+            conn.execute(directionURL);
+
+
+        }
+    }
 
     private class EditTextListener implements View.OnFocusChangeListener, View.OnClickListener {
         @Override
@@ -214,13 +211,6 @@ public class HomeActivity extends AppCompatActivity {
 
                     }
                 }
-                /*
-                while(!Checkpoints.atEnd()) {
-                    Checkpoint c = Checkpoints.currentCheckpoint();
-                    System.out.println(c.getLocation().toString());
-                    System.out.println(c.getTypeCode());
-                    Checkpoints.moveToNext();
-                }*/
             }
 
 
@@ -265,18 +255,15 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    private void updateUI() {
+    protected void updateUI() {
         //Fill in the EditText fields to have friendly location data
         String source = LocationConstants.FLAG_SOURCE;
         String destination = LocationConstants.FLAG_DESTINATION;
         String displayText = "";
         if(MapsManager.hasLocation(source)) {
             try {
-                String featureName = getAddress(MapsManager.getLocation(source)).getFeatureName();
                 displayText = getAddress(MapsManager.getLocation(source)).getAddressLine(0);
-                if(featureName != null) {
-                    displayText = featureName + ", " + displayText;
-                }
+                displayText += ", " + getAddress(MapsManager.getLocation(source)).getAddressLine(1);
                 startLocation.setText(displayText);
             } catch (NullPointerException e) {
                 startLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
