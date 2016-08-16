@@ -102,43 +102,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Location pickedLoc = new Location(LocationManager.GPS_PROVIDER);
-                pickedLoc.setLongitude(marker.getPosition().longitude);
-                pickedLoc.setLatitude(marker.getPosition().latitude);
-                final Location loc = getPlaceEstimate(pickedLoc.getLatitude(), pickedLoc.getLongitude());
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(new LatLng(loc.getLatitude(), loc.getLongitude())).title("wut"));
-                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
-                builder.setMessage("Save Location?");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        MapsManager.saveLocation(loc, locationFlag);
-                        MapsManager.closeMap(MapsActivity.this, null);
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                builder.show();
+                if(locationFlag.equals("startRoute")) {
+                    marker.showInfoWindow();
+                }
+                else {
+                    Location pickedLoc = new Location(LocationManager.GPS_PROVIDER);
+                    pickedLoc.setLongitude(marker.getPosition().longitude);
+                    pickedLoc.setLatitude(marker.getPosition().latitude);
+                    final Location loc = getPlaceEstimate(pickedLoc.getLatitude(), pickedLoc.getLongitude());
+                    mMap.clear();
+                    mMap.addMarker(new MarkerOptions().position(new LatLng(loc.getLatitude(), loc.getLongitude())).title("wut"));
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+                    builder.setMessage("Save Location?");
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            MapsManager.saveLocation(loc, locationFlag);
+                            MapsManager.closeMap(MapsActivity.this, null);
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.show();
+                }
                 return true;
-                /*
-                showToast("Saving this marker to source");
-                Location loc = new Location(LocationManager.GPS_PROVIDER);
-                loc.setLongitude(marker.getPosition().longitude);
-                loc.setLongitude(marker.getPosition().latitude);
-                MapsManager.saveLocation(loc, true);
-                System.out.println(MapsManager.getLocation(true).toString());
-                return true;
-                */
             }
         });
-//        if(locationFlag.equals("startRoute")) {
-//            displayCheckpoints();
-//        }
+        if(locationFlag.equals("startRoute")) {
+            displayCheckpoints("");
+        }
 
 
         // Add a marker in Sydney and move the camera
@@ -161,11 +157,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private void displayCheckpoints(String geofenceId) {
-        Checkpoints.pointToGeofence(geofenceId);
+        if(!geofenceId.equals(""))
+            Checkpoints.pointToGeofence(geofenceId);
         Checkpoint beginCheckpoint = Checkpoints.currentCheckpoint();
         LatLng beginCheckpointLocation = new LatLng(beginCheckpoint.getLocation().getLatitude(), beginCheckpoint.getLocation().getLongitude());
         System.out.println(beginCheckpoint.toString());
-        mMap.addMarker(new MarkerOptions().position(beginCheckpointLocation).title("Checkpoint something" ));
+        mMap.addMarker(new MarkerOptions().position(beginCheckpointLocation).title("Starting point" ));
         //System.out.println(c.getLocation().toString());
         Checkpoints.moveToNext();
         if(Checkpoints.atEnd())
@@ -173,9 +170,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         else {
             Checkpoint endCheckpoint = Checkpoints.currentCheckpoint();
             LatLng endCheckpointLocation = new LatLng(endCheckpoint.getLocation().getLatitude(), endCheckpoint.getLocation().getLongitude());
-            mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title("Checkpoint something else"));
+            mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title("Ending point"));
             mMap.addPolyline(new PolylineOptions().add(beginCheckpointLocation).add(endCheckpointLocation).width(5)
-                    .color((beginCheckpoint.getTypeCode() == 1) ? Color.RED : Color.BLUE));
+                    .color((beginCheckpoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
         }
     }
 

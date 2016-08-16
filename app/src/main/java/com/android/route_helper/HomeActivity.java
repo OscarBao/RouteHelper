@@ -188,35 +188,29 @@ public class HomeActivity extends AppCompatActivity {
                 in.close();
                 JSONObject jsonObject = new JSONObject(jsonObj);
                 //System.out.println(jsonObject);
+
+
                 JSONArray stepsOfRoute = jsonObject.getJSONArray("routes").getJSONObject(0).getJSONArray("legs").getJSONObject(0).getJSONArray("steps");
+
                 for(int i = 0; i < stepsOfRoute.length(); i++) {
                     JSONObject curr = stepsOfRoute.getJSONObject(i);
-
+                    //checkpoint for home
+                    if(i == 0) {
+                        createCheckpoint(curr, i, true);
+                    }
                     //usually for walkling
                     if(curr.has("steps")) {
                         for(int j = 0; j < curr.getJSONArray("steps").length(); j++) {
                             JSONObject currWalkingStep = curr.getJSONArray("steps").getJSONObject(j);
-                            String lat = currWalkingStep.getJSONObject("end_location").getString("lat");
-                            String lng = currWalkingStep.getJSONObject("end_location").getString("lng");
-                            int typeCode = (currWalkingStep.getString("travel_mode").equals("TRANSIT")) ? 1:0;
-                            String address = "Checkpoint " + j;
-                            Location l = new Location(LocationManager.GPS_PROVIDER);
-                            l.setLatitude(Double.parseDouble(lat));
-                            l.setLongitude(Double.parseDouble(lng));
-                            Checkpoint c = new Checkpoint(l,address,typeCode);
-                            Checkpoints.add(c);
+                            if(currWalkingStep.getJSONObject("distance").getInt("value") > 45)
+                                createCheckpoint(currWalkingStep, j, false);
+
                         }
                     }
                     else {
-                        String lat = curr.getJSONObject("end_location").getString("lat");
-                        String lng = curr.getJSONObject("end_location").getString("lng");
-                        int typeCode = (curr.getString("travel_mode").equals("TRANSIT")) ? 1:0;
-                        String address = "Checkpoint " + i;
-                        Location l = new Location(LocationManager.GPS_PROVIDER);
-                        l.setLatitude(Double.parseDouble(lat));
-                        l.setLongitude(Double.parseDouble(lng));
-                        Checkpoint c = new Checkpoint(l,address,typeCode);
-                        Checkpoints.add(c);
+                        if(curr.getJSONObject("distance").getInt("value") > 45)
+                            createCheckpoint(curr, i, false);
+
                     }
                 }
                 /*
@@ -256,6 +250,18 @@ public class HomeActivity extends AppCompatActivity {
     /*
         PRIVATE METHODS
      */
+
+    private void createCheckpoint(JSONObject jsonObject, int index, boolean isStartLocation) throws JSONException{
+        String lat = jsonObject.getJSONObject((isStartLocation) ? "start_location" : "end_location").getString("lat");
+        String lng = jsonObject.getJSONObject((isStartLocation) ? "start_location" : "end_location").getString("lng");
+        int typeCode = (jsonObject.getString("travel_mode").equals("TRANSIT")) ? 1:0;
+        String address = "Checkpoint " + index;
+        Location l = new Location(LocationManager.GPS_PROVIDER);
+        l.setLatitude(Double.parseDouble(lat));
+        l.setLongitude(Double.parseDouble(lng));
+        Checkpoint c = new Checkpoint(l,address,typeCode);
+        Checkpoints.add(c);
+    }
 
 
     private void updateUI() {
