@@ -133,7 +133,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
         if(locationFlag.equals("startRoute")) {
-            displayCheckpoints("");
+            while(!Checkpoints.atEnd())
+                displayCheckpoints("");
         }
 
 
