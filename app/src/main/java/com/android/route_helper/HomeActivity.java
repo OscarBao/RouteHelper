@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -271,7 +272,11 @@ public class HomeActivity extends AppCompatActivity {
         String displayText = "";
         if(MapsManager.hasLocation(source)) {
             try {
+                String featureName = getAddress(MapsManager.getLocation(source)).getFeatureName();
                 displayText = getAddress(MapsManager.getLocation(source)).getAddressLine(0);
+                if(featureName != null) {
+                    displayText = featureName + ", " + displayText;
+                }
                 startLocation.setText(displayText);
             } catch (NullPointerException e) {
                 startLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
@@ -280,6 +285,7 @@ public class HomeActivity extends AppCompatActivity {
         if(MapsManager.hasLocation(destination)) {
             try {
                 displayText = getAddress(MapsManager.getLocation(destination)).getAddressLine(0);
+                displayText += ", " + getAddress(MapsManager.getLocation(destination)).getAddressLine(1);
                 destLocation.setText(displayText);
             } catch (NullPointerException e) {
                 destLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
@@ -294,7 +300,7 @@ public class HomeActivity extends AppCompatActivity {
         }
         catch (IOException e) {
             e.printStackTrace();
+            return new Address(Locale.US);
         }
-        return null;
     }
 }
