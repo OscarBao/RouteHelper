@@ -2,12 +2,15 @@ package com.android.route_helper;
 
 
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -39,6 +42,8 @@ public class HomeActivity extends AppCompatActivity {
     private EditText startLocation;
     private EditText destLocation;
 
+    Geocoder geocoder;
+
     ArrayList<Location> defaultLocationsList;
 
     GeofencesManager geofencesManager;
@@ -49,6 +54,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        geocoder = new Geocoder(this);
         geofencesManager = new GeofencesManager(this);
 
         //Set up the interactive edittext fields
@@ -87,6 +93,17 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void bootGeofences() {
+        for(Location loc : Checkpoints.locationsList()) {
+            String name = "";
+            try {
+                Address address = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1).get(0);
+                name = address.getAddressLine(0);
+            }
+            catch( IOException e) {
+                e.printStackTrace();
+            }
+            Log.i(logTag, name);
+        }
         geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
     }
 

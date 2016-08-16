@@ -13,6 +13,7 @@ import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.android.route_helper.CheckpointManaging.*;
 
@@ -46,6 +47,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        intentFilter = new IntentFilter("nextStep");
+        broadcastReceiver = new GeofenceReceiver();
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(broadcastReceiver);
@@ -64,9 +74,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        intentFilter = new IntentFilter("nextStep");
-        broadcastReceiver = new GeofenceReceiver();
-        registerReceiver(broadcastReceiver, intentFilter);
         mMap = googleMap;
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -119,24 +126,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 */
             }
         });
-        ToastHandler.displayMessage(this, locationFlag);
-        if(locationFlag.equals("startRoute")) {
-                Checkpoint beginCheckpoint = Checkpoints.currentCheckpoint();
-                LatLng beginCheckpointLocation = new LatLng(beginCheckpoint.getLocation().getLatitude(), beginCheckpoint.getLocation().getLongitude());
-                System.out.println(beginCheckpoint);
-                mMap.addMarker(new MarkerOptions().position(beginCheckpointLocation).title("Checkpoint something" ));
-                //System.out.println(c.getLocation().toString());
-                Checkpoints.moveToNext();
-                if(Checkpoints.atEnd())
-                    ToastHandler.displayMessage(this, "At end of list");
-                else {
-                    Checkpoint endCheckpoint = Checkpoints.currentCheckpoint();
-                    LatLng endCheckpointLocation = new LatLng(endCheckpoint.getLocation().getLatitude(), endCheckpoint.getLocation().getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title("Checkpoint something else"));
-                    mMap.addPolyline(new PolylineOptions().add(beginCheckpointLocation).add(endCheckpointLocation).width(5)
-                            .color((beginCheckpoint.getTypeCode() == 1) ? Color.RED : Color.BLUE));
-                }
-            }
+//        if(locationFlag.equals("startRoute")) {
+//            displayCheckpoints();
+//        }
 
 
         // Add a marker in Sydney and move the camera
@@ -151,10 +143,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle b = intent.getExtras();
+            String requestId = b.getString("requestId");
+            displayCheckpoints(requestId);
+            Log.i("GeofenceReceiver", "Received an event");
         }
     }
 
 
+    private void displayCheckpoints(String geofenceId) {
+        Checkpoints.pointToGeofence(geofenceId);
+        Checkpoint beginCheckpoint = Checkpoints.currentCheckpoint();
+        LatLng beginCheckpointLocation = new LatLng(beginCheckpoint.getLocation().getLatitude(), beginCheckpoint.getLocation().getLongitude());
+        System.out.println(beginCheckpoint);
+        mMap.addMarker(new MarkerOptions().position(beginCheckpointLocation).title("Checkpoint something" ));
+        //System.out.println(c.getLocation().toString());
+        Checkpoints.moveToNext();
+        if(Checkpoints.atEnd())
+            ToastHandler.displayMessage(this, "At end of list");
+        else {
+            Checkpoint endCheckpoint = Checkpoints.currentCheckpoint();
+            LatLng endCheckpointLocation = new LatLng(endCheckpoint.getLocation().getLatitude(), endCheckpoint.getLocation().getLongitude());
+            mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title("Checkpoint something else"));
+            mMap.addPolyline(new PolylineOptions().add(beginCheckpointLocation).add(endCheckpointLocation).width(5)
+                    .color((beginCheckpoint.getTypeCode() == 1) ? Color.RED : Color.BLUE));
+        }
+    }
 
+    private void toast(String message) {
+        ToastHandler.displayMessage(this, message);
+    }
 
 }
