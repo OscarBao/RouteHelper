@@ -1,20 +1,16 @@
 package com.android.route_helper;
 
 
-import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +41,7 @@ public class HomeActivity extends RefreshActivity {
     private EditText startLocation;
     private EditText destLocation;
     private Button startRouteButton;
+    private Button planRouteButton;
 
     Geocoder geocoder;
 
@@ -66,12 +63,14 @@ public class HomeActivity extends RefreshActivity {
         startLocation = (EditText) findViewById(R.id.activity_home_edittext_source);
         destLocation = (EditText) findViewById(R.id.activity_home_edittext_destination);
         startRouteButton = (Button) findViewById(R.id.activity_home_button_startroute);
+        planRouteButton = (Button) findViewById(R.id.activity_home_button_planroute);
 
         startLocation.setOnFocusChangeListener(editTextListener);
         startLocation.setOnClickListener(editTextListener);
         destLocation.setOnFocusChangeListener(editTextListener);
         destLocation.setOnClickListener(editTextListener);
-        startRouteButton.setOnClickListener(new StartRouteListener());
+        startRouteButton.setOnClickListener(new RouteButtonListener());
+        planRouteButton.setOnClickListener(new RouteButtonListener());
 
         defaultLocationsList = new ArrayList<>();
         Location firstDefaultLoc = new Location("");
@@ -111,12 +110,35 @@ public class HomeActivity extends RefreshActivity {
     /*
         PRIVATE INNER CLASSES
      */
-    private class StartRouteListener implements View.OnClickListener {
+    private class RouteButtonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             if(v.getId() == R.id.activity_home_button_startroute) {
                 startRoute();
             }
+            else if(v.getId() == R.id.activity_home_button_planroute) {
+                planRoute();
+            }
+        }
+
+        private void planRoute() {
+            String directionURL = "https://maps.googleapis.com/maps/api/directions/json?";
+            String methodOfTransportation = "mode=transit";
+            String origin = "origin=" + MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLatitude() + "," +
+                    MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLongitude();
+            String destination = "destination=" + MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLatitude() + "," +
+                    MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLongitude();
+            Log.i(logTag, "Here is your source: " + origin);
+            Log.i(logTag, "Here is your destination: " + destination);
+            if(origin.equals("origin=Default loc") || destination.equals("destination=Default loc")) {
+                ToastHandler.displayMessage(getApplicationContext(), "Both origin and destination need a location");
+                return;
+            }
+            String apiKey = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
+            directionURL += origin + "&" + destination + "&" + methodOfTransportation + "&" + apiKey;
+            System.out.println(directionURL);
+            Connection conn = new Connection("planRoute");
+            conn.execute(directionURL);
         }
 
         private void startRoute() {
@@ -171,6 +193,16 @@ public class HomeActivity extends RefreshActivity {
     }
 
     private class Connection extends AsyncTask<String,Void,Void> {
+        String actionToken = "";
+
+        public Connection() {
+            actionToken = "startRoute";
+        }
+
+        public Connection(String actionToken) {
+            this.actionToken = actionToken;
+        }
+
         @Override
         protected Void doInBackground(String... params) {
             try {
@@ -232,7 +264,7 @@ public class HomeActivity extends RefreshActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             bootGeofences();
-            MapsManager.loadMap(HomeActivity.this, "startRoute");
+            MapsManager.loadMap(HomeActivity.this, actionToken);
         }
     }
 
