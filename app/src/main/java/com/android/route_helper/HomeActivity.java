@@ -76,6 +76,7 @@ public class HomeActivity extends AppCompatActivity {
         defaultLocationsList.add(firstDefaultLoc);
         defaultLocationsList.add(secondDefaultLoc);
 
+
     }
 
     @Override
@@ -115,8 +116,12 @@ public class HomeActivity extends AppCompatActivity {
     public void startRoute(View v) {
         String directionURL = "https://maps.googleapis.com/maps/api/directions/json?";
         String methodOfTransportation = "mode=transit";
-        String origin = "origin=" + startLocation.getText().toString();
-        String destination = "destination=" + destLocation.getText().toString();
+        String origin = "origin=" + MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLatitude() + "," +
+                MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLongitude();
+        String destination = "destination=" + MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLatitude() + "," +
+                                            MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLongitude();
+        Log.i(logTag, "Here is your source: " + origin);
+        Log.i(logTag, "Here is your destination: " + destination);
         if(origin.equals("origin=Default loc") || destination.equals("destination=Default loc")) {
             ToastHandler.displayMessage(this, "Both origin and destination need a location");
             return;
@@ -259,14 +264,31 @@ public class HomeActivity extends AppCompatActivity {
         String destination = LocationConstants.FLAG_DESTINATION;
         String displayText = "";
         if(MapsManager.hasLocation(source)) {
-            displayText = MapsManager.getLocation(source).getLatitude() + "," + MapsManager.getLocation(source).getLongitude();
-            startLocation.setText(displayText);
-        } else startLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
+            try {
+                displayText = getAddress(MapsManager.getLocation(source)).getAddressLine(0);
+                startLocation.setText(displayText);
+            } catch (NullPointerException e) {
+                startLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
+            }
+        }
+        if(MapsManager.hasLocation(destination)) {
+            try {
+                displayText = getAddress(MapsManager.getLocation(destination)).getAddressLine(0);
+                destLocation.setText(displayText);
+            } catch (NullPointerException e) {
+                destLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
+            }
+        }
 
-        if (MapsManager.hasLocation(destination)) {
-            displayText = MapsManager.getLocation(destination).getLatitude() + "," + MapsManager.getLocation(destination).getLongitude();
-            destLocation.setText(displayText);
-        } else destLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
+    }
 
+    private Address getAddress(Location loc) {
+        try {
+            return geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1).get(0);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

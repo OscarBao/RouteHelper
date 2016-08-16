@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
@@ -27,8 +29,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.io.IOException;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private Geocoder geocoder;
     private GoogleMap mMap;
     private String locationFlag;
     private LatLng sf = new LatLng(37.7749, -122.4194);
@@ -39,6 +44,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        geocoder = new Geocoder(this);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -95,9 +101,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                final Location loc = new Location(LocationManager.GPS_PROVIDER);
-                loc.setLongitude(marker.getPosition().longitude);
-                loc.setLatitude(marker.getPosition().latitude);
+                Location pickedLoc = new Location(LocationManager.GPS_PROVIDER);
+                pickedLoc.setLongitude(marker.getPosition().longitude);
+                pickedLoc.setLatitude(marker.getPosition().latitude);
+                final Location loc = getPlaceEstimate(pickedLoc.getLatitude(), pickedLoc.getLongitude());
                 AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
                 builder.setMessage("Save Location?");
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -154,7 +161,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Checkpoints.pointToGeofence(geofenceId);
         Checkpoint beginCheckpoint = Checkpoints.currentCheckpoint();
         LatLng beginCheckpointLocation = new LatLng(beginCheckpoint.getLocation().getLatitude(), beginCheckpoint.getLocation().getLongitude());
-        System.out.println(beginCheckpoint);
+        System.out.println(beginCheckpoint.toString());
         mMap.addMarker(new MarkerOptions().position(beginCheckpointLocation).title("Checkpoint something" ));
         //System.out.println(c.getLocation().toString());
         Checkpoints.moveToNext();
@@ -169,8 +176,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void toast(String message) {
-        ToastHandler.displayMessage(this, message);
+    private Location getPlaceEstimate(double latitude, double longitude) {
+        //TODO check if proper location received
+        try {
+            Address closestAddress = geocoder.getFromLocation(latitude, longitude, 1).get(0);
+            Location closestLoc = new Location(LocationManager.GPS_PROVIDER);
+            closestLoc.setLatitude(closestAddress.getLatitude());
+            closestLoc.setLongitude(closestAddress.getLongitude());
+            return closestLoc;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
