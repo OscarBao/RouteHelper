@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.android.route_helper.CheckpointManaging.*;
 
+import com.android.route_helper.LocationTracking.LocationConstants;
 import com.android.route_helper.StaticManagers.ToastHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -105,6 +106,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 pickedLoc.setLongitude(marker.getPosition().longitude);
                 pickedLoc.setLatitude(marker.getPosition().latitude);
                 final Location loc = getPlaceEstimate(pickedLoc.getLatitude(), pickedLoc.getLongitude());
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions().position(new LatLng(loc.getLatitude(), loc.getLongitude())).title("wut"));
                 AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
                 builder.setMessage("Save Location?");
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -187,8 +190,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         catch (IOException e) {
             e.printStackTrace();
+            Location defaultLoc = new Location(LocationManager.GPS_PROVIDER);
+            defaultLoc.setLatitude(latitude);
+            defaultLoc.setLongitude(longitude);
+            return defaultLoc;
         }
-        return null;
     }
 
 }
