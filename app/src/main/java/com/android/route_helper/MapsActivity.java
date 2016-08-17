@@ -135,7 +135,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
         Checkpoints.reset();
         if(locationFlag.equals("startRoute")) {
-            while(!Checkpoints.atEnd())
                 displayCheckpoints("");
         }
         else if(locationFlag.equals("planRoute")) {
