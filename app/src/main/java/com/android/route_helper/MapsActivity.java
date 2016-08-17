@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import com.google.maps.android.PolyUtil;
 
 import com.android.route_helper.CheckpointManaging.*;
 
@@ -166,11 +167,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.addMarker(new MarkerOptions().position(currLoc).title("leg"));
             Checkpoints.moveToNext();
 
+
             if(Checkpoints.atEnd()) break;
             Checkpoint nextPoint = Checkpoints.currentCheckpoint();
             LatLng nextLoc = new LatLng(nextPoint.getLocation().getLatitude(), nextPoint.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(nextLoc).title("leg"));
-            mMap.addPolyline(new PolylineOptions().add(currLoc).add(nextLoc).width(5).color((currCheckpoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
+            mMap.addPolyline(new PolylineOptions().add(currLoc).add(nextLoc).width(5).color((nextPoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
         }
     }
 
@@ -189,8 +191,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Checkpoint endCheckpoint = Checkpoints.currentCheckpoint();
             LatLng endCheckpointLocation = new LatLng(endCheckpoint.getLocation().getLatitude(), endCheckpoint.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title("Ending point"));
-            mMap.addPolyline(new PolylineOptions().add(beginCheckpointLocation).add(endCheckpointLocation).width(5)
-                    .color((beginCheckpoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
+            mMap.addPolyline(new PolylineOptions().addAll(endCheckpoint.getPolyline()).width(5)
+                    .color((endCheckpoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
         }
     }
 

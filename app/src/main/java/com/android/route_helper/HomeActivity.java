@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -32,6 +33,10 @@ import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.LocationTracking.GeofencesManager;
 import com.android.route_helper.LocationTracking.LocationConstants;
 import com.android.route_helper.StaticManagers.ToastHandler;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
 
 public class HomeActivity extends RefreshActivity {
 
@@ -226,22 +231,21 @@ public class HomeActivity extends RefreshActivity {
                     JSONObject curr = stepsOfRoute.getJSONObject(i);
                     //checkpoint for home
                     if(i == 0) {
-                        createCheckpoint(curr, i);
+                        createCheckpoint(curr, i, true);
                     }
                     //usually for walking
                     if(curr.has("steps")) {
                         for(int j = 0; j < curr.getJSONArray("steps").length(); j++) {
                             JSONObject currWalkingStep = curr.getJSONArray("steps").getJSONObject(j);
-                            createCheckpoint(currWalkingStep, j);
                             if(currWalkingStep.getJSONObject("distance").getInt("value") > 45)
-                                j++;
+                                createCheckpoint(currWalkingStep, j, false);
 
                         }
                     }
                     else {
-                        createCheckpoint(curr, i);
+
                         if(curr.getJSONObject("distance").getInt("value") > 45)
-                            i++;
+                            createCheckpoint(curr, i, false);
                     }
                 }
             }
@@ -275,15 +279,16 @@ public class HomeActivity extends RefreshActivity {
         PRIVATE METHODS
      */
 
-    private void createCheckpoint(JSONObject jsonObject, int index) throws JSONException{
-        String lat = jsonObject.getJSONObject("start_location").getString("lat");
-        String lng = jsonObject.getJSONObject("start_location").getString("lng");
+    private void createCheckpoint(JSONObject jsonObject, int index, boolean isStartLocation) throws JSONException{
+        String lat = jsonObject.getJSONObject((isStartLocation) ? "start_location": "end_location").getString("lat");
+        String lng = jsonObject.getJSONObject((isStartLocation) ? "start_location": "end_location").getString("lng");
+        List<LatLng> encodedPolylines = PolyUtil.decode(jsonObject.getJSONObject("polyline").getString("points"));
         int typeCode = (jsonObject.getString("travel_mode").equals("TRANSIT")) ? 1:0;
         String address = "Checkpoint " + index;
         Location l = new Location(LocationManager.GPS_PROVIDER);
         l.setLatitude(Double.parseDouble(lat));
         l.setLongitude(Double.parseDouble(lng));
-        Checkpoint c = new Checkpoint(l,address,typeCode);
+        Checkpoint c = new Checkpoint(l,address,typeCode,encodedPolylines);
         Checkpoints.add(c);
     }
 
