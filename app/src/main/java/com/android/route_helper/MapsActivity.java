@@ -194,6 +194,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ToastHandler.displayMessage(this, "At end of list");
         else {
             Checkpoint endCheckpoint = Checkpoints.currentCheckpoint();
+            Log.i("Checkpoint: " + Checkpoints.currentCheckpoint().getName(), Checkpoints.currentCheckpoint().getLocation().toString());
             LatLng endCheckpointLocation = new LatLng(endCheckpoint.getLocation().getLatitude(), endCheckpoint.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title("Ending point"));
             mMap.addPolyline(new PolylineOptions().addAll(endCheckpoint.getPolyline()).width(5)
