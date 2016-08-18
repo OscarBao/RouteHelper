@@ -138,6 +138,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 displayCheckpoints("");
         }
         else if(locationFlag.equals("planRoute")) {
+            mMap.setContentDescription("Route planning in progress");
             displayAllCheckpoints();
         }
 
@@ -177,6 +178,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void displayCheckpoints(String geofenceId) {
+        //TODO: uncomment when no longer testing
+        //mMap.clear();
         if(!geofenceId.equals(""))
             Checkpoints.pointToGeofence(geofenceId);
         Checkpoint beginCheckpoint = Checkpoints.currentCheckpoint();
