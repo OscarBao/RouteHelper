@@ -134,8 +134,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
         if(locationFlag.equals("startRoute")) {
-            while(!Checkpoints.atEnd())
-                displayCheckpoints("");
+            displayCheckpoints("");
         }
         else if(locationFlag.equals("planRoute")) {
             displayAllCheckpoints();
@@ -162,6 +161,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void displayAllCheckpoints() {
         while(!Checkpoints.atEnd()) {
+            Log.i("MapsActivity", "Creating checkpoint");
             Checkpoint currCheckpoint = Checkpoints.currentCheckpoint();
             LatLng currLoc = new LatLng(currCheckpoint.getLocation().getLatitude(), currCheckpoint.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(currLoc).title("leg"));
@@ -172,7 +172,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Checkpoint nextPoint = Checkpoints.currentCheckpoint();
             LatLng nextLoc = new LatLng(nextPoint.getLocation().getLatitude(), nextPoint.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(nextLoc).title("leg"));
-            mMap.addPolyline(new PolylineOptions().add(currLoc).add(nextLoc).width(5).color((nextPoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
+            mMap.addPolyline(new PolylineOptions().addAll(nextPoint.getPolyline()).width(5).color((nextPoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
+            Log.i("Checkpoint: " + Checkpoints.currentCheckpoint().getName(), Checkpoints.currentCheckpoint().getPolyline().toString());
         }
     }
 

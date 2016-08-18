@@ -25,7 +25,9 @@ public class Checkpoints implements Iterable<Checkpoint> {
     }
 
     public Iterator<Checkpoint> iterator() {return checkpointsList.iterator();}
-    public static void clear() {checkpointsList = new ArrayList<>();}
+    public static void clear() {
+        checkpointsList = new ArrayList<>();
+        currentCheckpointIndex = 0;}
     public static void add(Checkpoint cp) {checkpointsList.add(cp);}
     public static void remove(Checkpoint cp) {checkpointsList.remove(cp);}
     public static void moveToNext() {currentCheckpointIndex++;}
