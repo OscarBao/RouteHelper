@@ -65,18 +65,11 @@ public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
                 }
                 //usually for walking
                 if(curr.has("steps")) {
-                    List<LatLng> skippedCheckpoints = new ArrayList<LatLng>();
+                    List<LatLng> encodedPolylines = PolyUtil.decode(curr.getJSONObject("polyline").getString("points"));
                     for(int j = 0; j < curr.getJSONArray("steps").length(); j++) {
                         JSONObject currWalkingStep = curr.getJSONArray("steps").getJSONObject(j);
-                        if(currWalkingStep.getJSONObject("distance").getInt("value") > 45) {
-                            if(skippedCheckpoints.size() > 0)
-                                createCheckpoint(currWalkingStep, j, false, skippedCheckpoints);
-                            else
-                                createCheckpoint(currWalkingStep, j , false, null);
-                        }
-                        else
-                            skippedCheckpoints.addAll(PolyUtil.decode(currWalkingStep.getJSONObject("polyline").getString("points")));
-
+                        if(j == curr.getJSONArray("steps").length() - 1)
+                            createCheckpoint(currWalkingStep, j, false, encodedPolylines);
                     }
                 }
                 else {

@@ -23,7 +23,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
     @Override
     public void onHandleIntent(Intent intent) {
-        Log.i(logTag, "Found a geofencing event");
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if(geofencingEvent.hasError()) {
             Log.e(logTag, GeofenceStatusCodes.getStatusCodeString(geofencingEvent.getErrorCode()));

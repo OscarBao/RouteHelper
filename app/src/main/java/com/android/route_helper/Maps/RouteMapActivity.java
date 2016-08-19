@@ -30,22 +30,33 @@ public class RouteMapActivity extends MapsActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        intentFilter = new IntentFilter("nextStep");
+        broadcastReceiver = new GeofenceReceiver();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        intentFilter = new IntentFilter("nextStep");
-        broadcastReceiver = new GeofenceReceiver();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(broadcastReceiver);
     }
+
 
     /*
         INHERITED METHODS
@@ -53,6 +64,11 @@ public class RouteMapActivity extends MapsActivity{
     @Override
     public void onMapReady(GoogleMap googleMap) {
         super.onMapReady(googleMap);
+        Checkpoints.reset();
+        while(!Checkpoints.atEnd()) {
+            Log.i("RouteMapActivity", Checkpoints.currentCheckpoint().getLocation().toString());
+            Checkpoints.moveToNext();
+        }
         Checkpoints.reset();
         if(hintFlag.equals(LocationConstants.FLAG_STARTROUTE)) {
             displayCheckpoints("");
@@ -83,7 +99,6 @@ public class RouteMapActivity extends MapsActivity{
      */
     protected void displayAllCheckpoints() {
         while(!Checkpoints.atEnd()) {
-            Log.i("MapsActivity", "Creating checkpoint");
             Checkpoint currCheckpoint = Checkpoints.currentCheckpoint();
             LatLng currLoc = new LatLng(currCheckpoint.getLocation().getLatitude(), currCheckpoint.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(currLoc).title("leg"));
@@ -95,7 +110,6 @@ public class RouteMapActivity extends MapsActivity{
             LatLng nextLoc = new LatLng(nextPoint.getLocation().getLatitude(), nextPoint.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(nextLoc).title("leg"));
             mMap.addPolyline(new PolylineOptions().addAll(nextPoint.getPolyline()).width(5).color((nextPoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
-            Log.i("Checkpoint: " + Checkpoints.currentCheckpoint().getName(), Checkpoints.currentCheckpoint().getPolyline().toString());
         }
     }
 
@@ -114,7 +128,6 @@ public class RouteMapActivity extends MapsActivity{
             endRoute();
         else {
             Checkpoint endCheckpoint = Checkpoints.currentCheckpoint();
-            Log.i("Checkpoint: " + Checkpoints.currentCheckpoint().getName(), Checkpoints.currentCheckpoint().getLocation().toString());
             LatLng endCheckpointLocation = new LatLng(endCheckpoint.getLocation().getLatitude(), endCheckpoint.getLocation().getLongitude());
             mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title("Ending point"));
             mMap.addPolyline(new PolylineOptions().addAll(endCheckpoint.getPolyline()).width(5)

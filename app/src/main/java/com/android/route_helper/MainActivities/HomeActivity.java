@@ -66,25 +66,19 @@ public class HomeActivity extends RefreshActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        geofencesManager.shutdownGeofences();
+        Checkpoints.clear();
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         geofencesManager.startLocationTracking();
     }
 
-    private void bootGeofences() {
-        for(Location loc : Checkpoints.locationsList()) {
-            String name = "";
-            try {
-                Address address = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1).get(0);
-                name = address.getAddressLine(0);
-            }
-            catch( IOException e) {
-                e.printStackTrace();
-            }
-            Log.i(logTag, name);
-        }
-        geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
-    }
+
 
     /*
         PRIVATE INNER CLASSES
@@ -192,6 +186,20 @@ public class HomeActivity extends RefreshActivity {
         }
     }
 
+    private void bootGeofences() {
+        for(Location loc : Checkpoints.locationsList()) {
+            String name = "";
+            try {
+                Address address = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1).get(0);
+                name = address.getAddressLine(0);
+            }
+            catch( IOException e) {
+                e.printStackTrace();
+            }
+            Log.i(logTag, name);
+        }
+        geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
+    }
 
     protected void updateUI() {
         //Fill in the EditText fields to have friendly location data

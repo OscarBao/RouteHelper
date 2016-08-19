@@ -35,7 +35,6 @@ public class MapsManager{
     }
 
     public static void closeMap(Context currContext, Class<?> targetClass) {
-        Checkpoints.clear();
         if(targetClass == null) {
             //Go to previous screen if none has been specified
             //((Activity)currContext).setResult(Activity.RESULT_OK, new Intent().putExtra("isSource", isSource));

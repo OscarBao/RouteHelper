@@ -41,6 +41,15 @@ public class GeofencesManager {
         apiClient = buildGoogleApiClient(appContext);
     }
 
+    public void shutdownGeofences() {
+        if(apiClient.isConnected()) {
+            geofencingRequest = null;
+            currentRequestNum = 0;
+            LocationServices.GeofencingApi.removeGeofences(apiClient, getGeofenceTransitionPendingIntent());
+            apiClient.disconnect();
+        }
+    }
+
     public void bootGeofencingWithLocations(ArrayList<Location> locationsList) {
         bootGeofencingWithGeofences(toGeofenceList(locationsList));
     }
