@@ -1,6 +1,7 @@
 package com.android.route_helper.CheckpointManaging;
 
 import android.location.Location;
+import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 
@@ -34,7 +35,11 @@ public class Checkpoints implements Iterable<Checkpoint> {
     public static Checkpoint nextCheckpoint() {return checkpointsList.get(currentCheckpointIndex + 1);}
     public static void moveToNext() {currentCheckpointIndex++;}
     public static Checkpoint currentCheckpoint() {return checkpointsList.get(currentCheckpointIndex);}
-    public static boolean atEnd() {return currentCheckpointIndex >= checkpointsList.size();}
+    public static boolean atEnd() {
+        if(currentCheckpointIndex >= checkpointsList.size())
+                Log.i("CheckpointsList", "at end of list");
+        return currentCheckpointIndex >= checkpointsList.size();
+    }
 
     public static ArrayList<Location> locationsList() {
         ArrayList<Location> spit = new ArrayList<>();

@@ -1,42 +1,40 @@
-package com.android.route_helper;
+package com.android.route_helper.MainActivities;
 
 
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.net.ssl.HttpsURLConnection;
-
-import com.android.route_helper.Abstract.RefreshActivity;
 import com.android.route_helper.CheckpointManaging.Checkpoint;
 import com.android.route_helper.CheckpointManaging.Checkpoints;
+import com.android.route_helper.HTTPRequestors.GoogleDirectionsConnection;
+import com.android.route_helper.LocationConstants;
 import com.android.route_helper.LocationTracking.GeofencesManager;
-import com.android.route_helper.LocationTracking.LocationConstants;
+import com.android.route_helper.Maps.MapsManager;
+import com.android.route_helper.R;
 import com.android.route_helper.StaticManagers.ToastHandler;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class HomeActivity extends RefreshActivity {
 
@@ -77,40 +75,24 @@ public class HomeActivity extends RefreshActivity {
         startRouteButton.setOnClickListener(new RouteButtonListener());
         planRouteButton.setOnClickListener(new RouteButtonListener());
 
-        defaultLocationsList = new ArrayList<>();
-        Location firstDefaultLoc = new Location("");
-        firstDefaultLoc.setLatitude(LocationConstants.DEFAULT_LOCATION_LATITUDE);
-        firstDefaultLoc.setLongitude(LocationConstants.DEFAULT_LOCATION_LONGITUDE);
-        Location secondDefaultLoc = new Location("");
-        secondDefaultLoc.setLatitude(9.046496d);
-        secondDefaultLoc.setLongitude(21.467285);
-        defaultLocationsList.add(firstDefaultLoc);
-        defaultLocationsList.add(secondDefaultLoc);
 
 
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        geofencesManager.shutdownGeofences();
+        Checkpoints.clear();
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
-        //geofencesManager.bootGeofencingWithLocations(defaultLocationsList);
         geofencesManager.startLocationTracking();
     }
 
-    private void bootGeofences() {
-        for(Location loc : Checkpoints.locationsList()) {
-            String name = "";
-            try {
-                Address address = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1).get(0);
-                name = address.getAddressLine(0);
-            }
-            catch( IOException e) {
-                e.printStackTrace();
-            }
-            Log.i(logTag, name);
-        }
-        geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
-    }
+
 
     /*
         PRIVATE INNER CLASSES
@@ -142,7 +124,7 @@ public class HomeActivity extends RefreshActivity {
             String apiKey = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
             directionURL += origin + "&" + destination + "&" + methodOfTransportation + "&" + apiKey;
             System.out.println(directionURL);
-            Connection conn = new Connection("planRoute");
+            StartMapDirectionsConnection conn = new StartMapDirectionsConnection(LocationConstants.FLAG_PLANROUTE);
             conn.execute(directionURL);
         }
 
@@ -162,10 +144,8 @@ public class HomeActivity extends RefreshActivity {
             String apiKey = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
             directionURL += origin + "&" + destination + "&" + methodOfTransportation + "&" + apiKey;
             System.out.println(directionURL);
-            Connection conn = new Connection();
+            StartMapDirectionsConnection conn = new StartMapDirectionsConnection();
             conn.execute(directionURL);
-
-
         }
     }
 
@@ -197,79 +177,19 @@ public class HomeActivity extends RefreshActivity {
         }
     }
 
-    private class Connection extends AsyncTask<String,Void,Void> {
-        String actionToken = "";
 
-        public Connection() {
-            actionToken = "startRoute";
+    /*
+        PRIVATE METHODS
+     */
+    private class StartMapDirectionsConnection extends GoogleDirectionsConnection {    // private void
+        public StartMapDirectionsConnection(String actionTag) {
+            super(actionTag);
         }
 
-        public Connection(String actionToken) {
-            this.actionToken = actionToken;
+        public StartMapDirectionsConnection() {
+            super();
         }
 
-        @Override
-        protected Void doInBackground(String... params) {
-            try {
-                Checkpoints.clear();
-                URL url = new URL(params[0]);
-                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-                BufferedReader in = new BufferedReader(new InputStreamReader(
-                        conn.getInputStream()));
-                String inputLine;
-                String jsonObj = "";
-                while ((inputLine = in.readLine()) != null)
-                    jsonObj += inputLine;
-                in.close();
-                JSONObject jsonObject = new JSONObject(jsonObj);
-                //System.out.println(jsonObject);
-
-
-                JSONArray stepsOfRoute = jsonObject.getJSONArray("routes").getJSONObject(0).getJSONArray("legs").getJSONObject(0).getJSONArray("steps");
-
-                for(int i = 0; i < stepsOfRoute.length(); i++) {
-                    JSONObject curr = stepsOfRoute.getJSONObject(i);
-
-                    //checkpoint for home
-                    if(i == 0) {
-                        createCheckpoint(curr, i, true);
-                    }
-                    if(curr.getJSONObject("distance").getInt("value") > 45)
-                        createCheckpoint(curr, i, false);
-                    //usually for walking
-//                    if(curr.has("steps")) {
-//                        List<LatLng> walkingPolylines = PolyUtil.decode(curr.getJSONObject("polyline").getString("points"));
-//                        for(int j = 0; j < curr.getJSONArray("steps").length(); j++) {
-//                            JSONObject currWalkingStep = curr.getJSONArray("steps").getJSONObject(j);
-//                            if(currWalkingStep.getJSONObject("distance").getInt("value") > 45) {
-//                                if(j == (curr.getJSONArray("steps").length() - 1))
-//                                    createCheckpoint(currWalkingStep, j, false, walkingPolylines);
-//                            }
-//                            else
-//                                Log.i("HomeActivity", "Skipped a checkpoint");
-//
-//                        }
-//                    }
-//                    else {
-
-                    //}
-                }
-            }
-
-
-            catch(MalformedURLException e) {
-                e.printStackTrace();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-            catch(JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-       // private void
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
@@ -285,19 +205,20 @@ public class HomeActivity extends RefreshActivity {
         PRIVATE METHODS
      */
 
-    private void createCheckpoint(JSONObject jsonObject, int index, boolean isStartLocation) throws JSONException{
-        String lat = jsonObject.getJSONObject((isStartLocation) ? "start_location": "end_location").getString("lat");
-        String lng = jsonObject.getJSONObject((isStartLocation) ? "start_location": "end_location").getString("lng");
-        List<LatLng> encodedPolylines = PolyUtil.decode(jsonObject.getJSONObject("polyline").getString("points"));
-        int typeCode = (jsonObject.getString("travel_mode").equals("TRANSIT")) ? 1:0;
-        String address = "Checkpoint " + index;
-        Location l = new Location(LocationManager.GPS_PROVIDER);
-        l.setLatitude(Double.parseDouble(lat));
-        l.setLongitude(Double.parseDouble(lng));
-        Checkpoint c = new Checkpoint(l,address,typeCode,encodedPolylines);
-        Checkpoints.add(c);
+    private void bootGeofences() {
+        for(Location loc : Checkpoints.locationsList()) {
+            String name = "";
+            try {
+                Address address = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1).get(0);
+                name = address.getAddressLine(0);
+            }
+            catch( IOException e) {
+                e.printStackTrace();
+            }
+            Log.i(logTag, name);
+        }
+        geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
     }
-
 
     protected void updateUI() {
         //Fill in the EditText fields to have friendly location data

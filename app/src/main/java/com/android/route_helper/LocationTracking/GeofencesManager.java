@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import com.android.route_helper.LocationConstants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.*;
@@ -38,6 +39,15 @@ public class GeofencesManager {
         this.appContext = context;
         connectionDealer = new ConnectionDealer();
         apiClient = buildGoogleApiClient(appContext);
+    }
+
+    public void shutdownGeofences() {
+        if(apiClient.isConnected()) {
+            geofencingRequest = null;
+            currentRequestNum = 0;
+            LocationServices.GeofencingApi.removeGeofences(apiClient, getGeofenceTransitionPendingIntent());
+            apiClient.disconnect();
+        }
     }
 
     public void bootGeofencingWithLocations(ArrayList<Location> locationsList) {

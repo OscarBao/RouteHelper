@@ -1,4 +1,4 @@
-package com.android.route_helper;
+package com.android.route_helper.Maps;
 
 
 import android.app.Activity;
@@ -6,15 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.os.Bundle;
-import android.widget.BaseAdapter;
 
 import com.android.route_helper.CheckpointManaging.Checkpoints;
 
-import junit.framework.Test;
-
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Erik Mei on 6/30/2016.
@@ -33,14 +28,13 @@ public class MapsManager{
     public static void loadMap(Context currContext, String flag) {
 
         //ideally, targetClass is the Map Activity
-        Intent switchToMap = new Intent(currContext, MapsActivity.class);
+        Class<? extends MapsActivity> map = MapsActivity.getMapClass(flag);
+        Intent switchToMap = new Intent(currContext, map);
         switchToMap.putExtra("flag", flag);
-        ((Activity)currContext).startActivity(switchToMap);
-
+        currContext.startActivity(switchToMap);
     }
 
     public static void closeMap(Context currContext, Class<?> targetClass) {
-        Checkpoints.clear();
         if(targetClass == null) {
             //Go to previous screen if none has been specified
             //((Activity)currContext).setResult(Activity.RESULT_OK, new Intent().putExtra("isSource", isSource));
@@ -51,38 +45,16 @@ public class MapsManager{
         currContext.startActivity(switchToMap);
     }
 
-    /*
-    public static void saveLocation(Location loc, boolean isSourceLoc) {
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString((isSourceLoc) ? "sourceLocLat" : "destLocLat", Double.toString(loc.getLatitude()));
-        editor.putString((isSourceLoc) ? "sourceLocLng" : "destLocLng", Double.toString(loc.getLongitude()));
-        editor.putString((isSourceLoc) ? "sourceLocProvider" : "destLocProvider", loc.getProvider());
-        editor.commit();
-    }*/
 
     public static void saveLocation(Location loc, String flag) {
         flagMap.put(flag, loc);
     }
-
     public static Location getLocation(String flag) {
         return flagMap.get(flag);
     }
-
     public static boolean hasLocation(String flag) {
         return flagMap.containsKey(flag);
     }
 
-    /*
-    public static Location getLocation(boolean isSource) {
-        String provider;
-        Double lat, lng;
-        lat = (isSource) ? Double.parseDouble(sp.getString("sourceLocLat", "99999")) : Double.parseDouble(sp.getString("destLocLat", "99999"));
-        lng = (isSource) ? Double.parseDouble(sp.getString("sourceLocLng", "99999")) : Double.parseDouble(sp.getString("destLocLng", "99999"));
-        provider = (isSource) ? sp.getString("sourceLocProvider", "No provider found ") : sp.getString("destLocProvider", "No provider found");
-        Location loc = new Location(provider);
-        loc.setLatitude(lat);
-        loc.setLongitude(lng);
-        return loc;
-    }*/
 
 }

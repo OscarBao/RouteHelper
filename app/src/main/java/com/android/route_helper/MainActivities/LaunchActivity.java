@@ -1,17 +1,15 @@
-package com.android.route_helper;
+package com.android.route_helper.MainActivities;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.android.route_helper.CheckpointManaging.Checkpoints;
+import com.android.route_helper.Maps.MapsManager;
+import com.android.route_helper.R;
 import com.android.route_helper.StaticManagers.ToastHandler;
 
 public class LaunchActivity extends AppCompatActivity {

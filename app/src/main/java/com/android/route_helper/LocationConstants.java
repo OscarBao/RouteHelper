@@ -1,4 +1,4 @@
-package com.android.route_helper.LocationTracking;
+package com.android.route_helper;
 
 /**
  * Created by Oscar_Local on 7/2/2016.
@@ -15,6 +15,8 @@ public interface LocationConstants {
 
     String DEFAULT_LOCATION_STRING = "";
 
-    String FLAG_DESTINATION = "destinationFlag";
-    String FLAG_SOURCE = "sourceFlag";
+    String FLAG_DESTINATION = "selectDestinationFlag";
+    String FLAG_SOURCE = "selectSourceFlag";
+    String FLAG_STARTROUTE = "startRouteFlag";
+    String FLAG_PLANROUTE = "planRouteFlag";
 }

@@ -21,14 +21,14 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".LaunchActivity">
+        <activity android:name=".MainActivities.LaunchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HomeActivity" />
+        <activity android:name=".MainActivities.HomeActivity" />
 
         <service
             android:name=".LocationTracking.GeofenceTransitionsIntentService"
@@ -46,9 +46,12 @@
             android:value="AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".Maps.MapsActivity"
             android:label="@string/title_activity_maps" />
-
+        <activity android:name=".Maps.RouteMapActivity"
+            android:label="RouteMap" />
+        <activity android:name=".Maps.SelectionMapActivity"
+            android:label="SelectionMap"/>
         <service
             android:name=".StaticManagers.ToastService"
             android:exported="false"></service>
