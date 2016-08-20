@@ -84,7 +84,7 @@ public class SelectionMapActivity extends MapsActivity {
             mMap.clear();
             mMap.addMarker(new MarkerOptions().position(new LatLng(loc.getLatitude(), loc.getLongitude())).title("wut"));
             AlertDialog.Builder builder = new AlertDialog.Builder(SelectionMapActivity.this);
-            builder.setMessage("Save Location?");
+            builder.setMessage("Save Location to " + nearestClickedPlace.getName() + "?");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -95,6 +95,7 @@ public class SelectionMapActivity extends MapsActivity {
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    mMap.clear();
                     dialog.dismiss();
                 }
             });

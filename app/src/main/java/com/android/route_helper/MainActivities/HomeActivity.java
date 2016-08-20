@@ -27,7 +27,6 @@ import com.android.route_helper.LocationConstants;
 import com.android.route_helper.LocationTracking.GeofencesManager;
 import com.android.route_helper.Maps.MapsManager;
 import com.android.route_helper.R;
-import com.android.route_helper.StaticManagers.ToastHandler;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.PolyUtil;
 
@@ -84,6 +83,7 @@ public class HomeActivity extends RefreshActivity {
     public void onResume() {
         super.onResume();
         geofencesManager.shutdownGeofences();
+        geofencesManager.endLocationTracking();
         Checkpoints.clear();
     }
 
@@ -160,11 +160,11 @@ public class HomeActivity extends RefreshActivity {
      */
     private class StartMapDirectionsConnection extends GoogleDirectionsConnection {    // private void
         public StartMapDirectionsConnection(String actionTag) {
-            super(actionTag);
+            super(getApplicationContext(), actionTag);
         }
 
         public StartMapDirectionsConnection() {
-            super();
+            super(getApplicationContext());
         }
 
         @Override
@@ -183,17 +183,6 @@ public class HomeActivity extends RefreshActivity {
      */
 
     private void bootGeofences() {
-        for(Location loc : Checkpoints.locationsList()) {
-            String name = "";
-            try {
-                Address address = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1).get(0);
-                name = address.getAddressLine(0);
-            }
-            catch( IOException e) {
-                e.printStackTrace();
-            }
-            Log.i(logTag, name);
-        }
         geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
     }
 
@@ -211,6 +200,9 @@ public class HomeActivity extends RefreshActivity {
                 startLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
             }
         }
+        else {
+            startLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
+        }
         if(MapsManager.hasPlace(destination)) {
             try {
                 displayText = MapsManager.getPlace(destination).getName();
@@ -219,6 +211,9 @@ public class HomeActivity extends RefreshActivity {
             } catch (NullPointerException e) {
                 destLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
             }
+        }
+        else {
+            destLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
         }
 
     }

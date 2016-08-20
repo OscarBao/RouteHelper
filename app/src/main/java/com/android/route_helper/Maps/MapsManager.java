@@ -10,7 +10,9 @@ import android.location.Location;
 import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.CheckpointManaging.Place;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Created by Erik Mei on 6/30/2016.
@@ -33,6 +35,10 @@ public class MapsManager{
         Intent switchToMap = new Intent(currContext, map);
         switchToMap.putExtra("flag", flag);
         currContext.startActivity(switchToMap);
+    }
+
+    public static void clearFlags() {
+        flagMap.clear();
     }
 
     public static void closeMap(Context currContext, Class<?> targetClass) {

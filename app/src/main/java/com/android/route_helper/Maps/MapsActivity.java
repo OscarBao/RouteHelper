@@ -9,16 +9,17 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.widget.Toast;
 
 import com.android.route_helper.LocationConstants;
 import com.android.route_helper.R;
 
 import com.android.route_helper.CheckpointManaging.*;
 
-import com.android.route_helper.StaticManagers.ToastHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -58,6 +59,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         else return RouteMapActivity.class;
     }
 
+
+    private Handler toastHandler = new Handler();
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -65,7 +68,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
         } else {
-            ToastHandler.displayMessage(this, "Location not enabled");
+            toastHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "Location not enabled", Toast.LENGTH_SHORT).show();
+                }
+            });
             // Show rationale and request permission.
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sf, 15));
