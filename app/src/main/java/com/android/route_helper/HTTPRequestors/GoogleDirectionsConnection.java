@@ -3,6 +3,7 @@ package com.android.route_helper.HTTPRequestors;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.android.route_helper.CheckpointManaging.Checkpoint;
 import com.android.route_helper.CheckpointManaging.Checkpoints;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -28,7 +28,9 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by Oscar_Local on 8/18/2016.
  */
 public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
+    private static String logTag = "GoogleDirectionsConn";
     public String actionToken = "";
+    private String googleDirectionsURL = "";
 
     public GoogleDirectionsConnection() {
         actionToken = LocationConstants.FLAG_STARTROUTE;
@@ -38,11 +40,26 @@ public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
         this.actionToken = actionToken;
     }
 
+    public void createGoogleDirectionsURL(Location origin, Location destination) {
+        String originString = "origin=" + origin.getLatitude() + "," + origin.getLongitude();
+        String destinationString = "destination=" + destination.getLatitude() + "," + destination.getLongitude();
+        googleDirectionsURL = LocationConstants.GOOGLE_DIRECTIONS_BASE_URL +
+                                originString + "&" +
+                                destinationString + "&" +
+                                LocationConstants.GOOGLE_DIRECTIONS_TRANSIT_MODE + "&" +
+                                LocationConstants.GOOGLE_DIRECTIONS_API_KEY;
+        Log.i(logTag, googleDirectionsURL);
+    }
+
+
     @Override
     protected Void doInBackground(String... params) {
+        if(googleDirectionsURL == null || googleDirectionsURL.equals("")) {
+            return null;
+        }
         try {
             Checkpoints.clear();
-            URL url = new URL(params[0]);
+            URL url = new URL(googleDirectionsURL);
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     conn.getInputStream()));
@@ -102,6 +119,9 @@ public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
     // private void
     @Override
     protected void onPostExecute(Void aVoid) {
+        if(googleDirectionsURL == null || googleDirectionsURL.equals("")) {
+            return;
+        }
     }
 
     private void createCheckpoint(JSONObject jsonObject, int index, boolean isStartLocation) throws JSONException{

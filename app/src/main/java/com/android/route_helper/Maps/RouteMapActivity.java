@@ -66,11 +66,6 @@ public class RouteMapActivity extends MapsActivity{
     public void onMapReady(GoogleMap googleMap) {
         super.onMapReady(googleMap);
         Checkpoints.reset();
-        while(!Checkpoints.atEnd()) {
-            Log.i("RouteMapActivity", Checkpoints.currentCheckpoint().getLocation().toString());
-            Checkpoints.moveToNext();
-        }
-        Checkpoints.reset();
         if(hintFlag.equals(LocationConstants.FLAG_STARTROUTE)) {
             displayCheckpoints("");
         }

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 
 import com.android.route_helper.CheckpointManaging.Checkpoints;
+import com.android.route_helper.CheckpointManaging.Place;
 
 import java.util.HashMap;
 
@@ -18,7 +19,7 @@ public class MapsManager{
     private static SharedPreferences sp;
     private static Location sourceLoc;
     private static Location destLoc;
-    private static HashMap<String, Location> flagMap;
+    private static HashMap<String, Place> flagMap;
     private static int REQUEST_GET_MAP_LOC = 0;
 
     public MapsManager() {
@@ -46,13 +47,13 @@ public class MapsManager{
     }
 
 
-    public static void saveLocation(Location loc, String flag) {
+    public static void savePlace(Place loc, String flag) {
         flagMap.put(flag, loc);
     }
-    public static Location getLocation(String flag) {
+    public static Place getPlace(String flag) {
         return flagMap.get(flag);
     }
-    public static boolean hasLocation(String flag) {
+    public static boolean hasPlace(String flag) {
         return flagMap.containsKey(flag);
     }
 
