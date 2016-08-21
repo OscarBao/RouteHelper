@@ -77,6 +77,12 @@ public class RouteMapActivity extends MapsActivity{
         else if(hintFlag.equals(LocationConstants.FLAG_PLANROUTE)) {
             displayAllCheckpoints();
         }
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                ToastHandler.
+            }
+        });
     }
 
     /*

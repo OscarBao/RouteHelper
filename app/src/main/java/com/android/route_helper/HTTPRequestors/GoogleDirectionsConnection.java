@@ -107,13 +107,14 @@ public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
     private void createCheckpoint(JSONObject jsonObject, int index, boolean isStartLocation) throws JSONException{
         String lat = jsonObject.getJSONObject((isStartLocation) ? "start_location": "end_location").getString("lat");
         String lng = jsonObject.getJSONObject((isStartLocation) ? "start_location": "end_location").getString("lng");
+        String instructions = jsonObject.getString("html_instructions");
         List<LatLng> encodedPolylines = PolyUtil.decode(jsonObject.getJSONObject("polyline").getString("points"));
         int typeCode = (jsonObject.getString("travel_mode").equals("TRANSIT")) ? 1:0;
         String address = "Checkpoint " + index;
         Location l = new Location(LocationManager.GPS_PROVIDER);
         l.setLatitude(Double.parseDouble(lat));
         l.setLongitude(Double.parseDouble(lng));
-        Checkpoint c = new Checkpoint(l,address,typeCode,encodedPolylines);
+        Checkpoint c = new Checkpoint(l,address,typeCode,encodedPolylines,instructions);
         Checkpoints.add(c);
     }
 }
