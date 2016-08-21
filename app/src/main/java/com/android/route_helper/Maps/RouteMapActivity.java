@@ -120,7 +120,7 @@ public class RouteMapActivity extends MapsActivity{
             return "Walk to " + cp.getName();
         }
         else if(cp.getTypeCode() == 1){
-            return "Bus to " + cp.getName();
+            return "Transit by " + cp.getTransitInfo() + " to " + cp.getName();
         }
         else {
             return cp.getName();
