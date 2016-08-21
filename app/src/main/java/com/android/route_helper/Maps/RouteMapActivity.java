@@ -15,6 +15,8 @@ import com.android.route_helper.CheckpointManaging.Checkpoint;
 import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.LocationConstants;
 import com.android.route_helper.R;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -149,6 +151,7 @@ public class RouteMapActivity extends MapsActivity{
         else {
             Checkpoint endCheckpoint = Checkpoints.currentCheckpoint();
             LatLng endCheckpointLocation = new LatLng(endCheckpoint.getLocation().getLatitude(), endCheckpoint.getLocation().getLongitude());
+            moveCameraTo(endCheckpointLocation);
             nextPoint = mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title(getGoogleTravelTitle(endCheckpoint)));
             nextPoint.showInfoWindow();
             mMap.addPolyline(new PolylineOptions().addAll(endCheckpoint.getPolyline()).width(5)
@@ -167,6 +170,16 @@ public class RouteMapActivity extends MapsActivity{
         });
     }
 
+    protected void moveCameraTo(LatLng latLng) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
+        mMap.moveCamera(cameraUpdate);
+    }
+
+    protected void moveCameraTo(double lat, double lng) {
+        LatLng latLng = new LatLng(lat, lng);
+        moveCameraTo(latLng);
+    }
+
     private void showInstructions() {
         toastHandler.post(new Runnable() {
             @Override
@@ -175,12 +188,5 @@ public class RouteMapActivity extends MapsActivity{
                 Toast.makeText(getApplicationContext(),Checkpoints.currentCheckpoint().getGoogleTravelInfo(),Toast.LENGTH_LONG).show();
             }
         });
-        /*
-        toastHandler.post(new Runnable() {
-            @Override
-            public void run() {
-            }
-        });
-        */
     }
 }
