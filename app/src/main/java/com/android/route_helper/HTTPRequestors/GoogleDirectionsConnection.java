@@ -139,6 +139,7 @@ public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
         String lng = jsonObject.getJSONObject((isStartLocation) ? "start_location": "end_location").getString("lng");
         List<LatLng> encodedPolylines = PolyUtil.decode(jsonObject.getJSONObject("polyline").getString("points"));
         int typeCode = (jsonObject.getString("travel_mode").equals("TRANSIT")) ? 1:0;
+        //Collect transit info if bussing
         String transitInfo = "";
         if(jsonObject.getString("travel_mode").equals("TRANSIT")) {
             String tempTransit = jsonObject.getJSONObject("transit_details").getJSONObject("line").getJSONArray("agencies").getJSONObject(0).getString("name");
@@ -146,12 +147,16 @@ public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
             String headsign = jsonObject.getJSONObject("transit_details").getString("headsign");
             transitInfo += line + " " + headsign;
         }
+        //Take google interpretation of instructions
+        String googleTravelInfo = jsonObject.getString("html_instructions");
+
         if(isStartLocation) typeCode = -1;
         Location l = new Location(LocationManager.GPS_PROVIDER);
         l.setLatitude(Double.parseDouble(lat));
         l.setLongitude(Double.parseDouble(lng));
         String address = getAddress(l).getAddressLine(0);
-        Checkpoint c = new Checkpoint(l,address,typeCode,encodedPolylines, transitInfo);
+        Checkpoint c = new Checkpoint(l,address,typeCode,encodedPolylines, googleTravelInfo);
+        c.setTransitInfo(transitInfo);
         Checkpoints.add(c);
     }
 

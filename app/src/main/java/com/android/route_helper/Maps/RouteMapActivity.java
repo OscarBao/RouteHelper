@@ -78,22 +78,16 @@ public class RouteMapActivity extends MapsActivity{
         Checkpoints.reset();
         if(hintFlag.equals(LocationConstants.FLAG_STARTROUTE)) {
             displayCheckpoints("");
+            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng) {
+                    showInstructions();
+                }
+            });
         }
         else if(hintFlag.equals(LocationConstants.FLAG_PLANROUTE)) {
             displayAllCheckpoints();
         }
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                showInstructions();
-            }
-        });
-        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-            @Override
-            public void onCameraChange(CameraPosition cameraPosition) {
-                nextPoint.showInfoWindow();
-            }
-        });
     }
 
     /*
@@ -117,38 +111,47 @@ public class RouteMapActivity extends MapsActivity{
      */
     protected String getCheckpointTitle(Checkpoint cp) {
         if(cp.getTypeCode() == 0) {
-            return "Walk to " + cp.getName();
+            return "Follow route by foot";
         }
         else if(cp.getTypeCode() == 1){
-            return "Transit by " + cp.getTransitInfo() + " to " + cp.getName();
+            return "Get on transit [" + cp.getTransitInfo() + "]";
         }
         else {
             return cp.getName();
         }
     }
 
+    protected String getGoogleTravelTitle(Checkpoint cp) {
+        if(cp.getTypeCode() == 0) {
+            return cp.getGoogleTravelInfo();
+        }
+        if(cp.getTypeCode() == 1) {
+            return cp.getGoogleTravelInfo() + " via [" + cp.getTransitInfo() + "]";
+        }
+        else return cp.getName();
+    }
+
     protected void displayAllCheckpoints() {
         while(!Checkpoints.atEnd()) {
             Checkpoint currCheckpoint = Checkpoints.currentCheckpoint();
             LatLng currLoc = new LatLng(currCheckpoint.getLocation().getLatitude(), currCheckpoint.getLocation().getLongitude());
-            mMap.addMarker(new MarkerOptions().position(currLoc).title(getCheckpointTitle(currCheckpoint)));
+            mMap.addMarker(new MarkerOptions().position(currLoc).title(getGoogleTravelTitle(currCheckpoint)));
             Checkpoints.moveToNext();
             if(Checkpoints.atEnd()) break;
             Checkpoint nextPoint = Checkpoints.currentCheckpoint();
             LatLng nextLoc = new LatLng(nextPoint.getLocation().getLatitude(), nextPoint.getLocation().getLongitude());
-            mMap.addMarker(new MarkerOptions().position(nextLoc).title(getCheckpointTitle(nextPoint)));
+            mMap.addMarker(new MarkerOptions().position(nextLoc).title(getGoogleTravelTitle(nextPoint)));
             mMap.addPolyline(new PolylineOptions().addAll(nextPoint.getPolyline()).width(5).color((nextPoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
         }
     }
 
     protected void displayCheckpoints(String geofenceId) {
-        //TODO: uncomment when no longer testing
-        //mMap.clear();
+        mMap.clear();
         if(!geofenceId.equals(""))
             Checkpoints.pointToGeofence(geofenceId);
         Checkpoint beginCheckpoint = Checkpoints.currentCheckpoint();
         LatLng beginCheckpointLocation = new LatLng(beginCheckpoint.getLocation().getLatitude(), beginCheckpoint.getLocation().getLongitude());
-        mMap.addMarker(new MarkerOptions().position(beginCheckpointLocation).title(getCheckpointTitle(beginCheckpoint)));
+        mMap.addMarker(new MarkerOptions().position(beginCheckpointLocation).title(getGoogleTravelTitle(beginCheckpoint)));
         //System.out.println(c.getLocation().toString());
         Checkpoints.moveToNext();
         if(Checkpoints.atEnd()) {
@@ -157,7 +160,7 @@ public class RouteMapActivity extends MapsActivity{
         else {
             Checkpoint endCheckpoint = Checkpoints.currentCheckpoint();
             LatLng endCheckpointLocation = new LatLng(endCheckpoint.getLocation().getLatitude(), endCheckpoint.getLocation().getLongitude());
-            nextPoint = mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title(endCheckpoint.getName()));
+            nextPoint = mMap.addMarker(new MarkerOptions().position(endCheckpointLocation).title(getGoogleTravelTitle(endCheckpoint)));
             nextPoint.showInfoWindow();
             mMap.addPolyline(new PolylineOptions().addAll(endCheckpoint.getPolyline()).width(5)
                     .color((endCheckpoint.getTypeCode() == 1) ? Color.RED : Color.BLUE).geodesic(true));
@@ -179,7 +182,13 @@ public class RouteMapActivity extends MapsActivity{
         toastHandler.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getApplicationContext(),getCheckpointTitle(Checkpoints.currentCheckpoint()),Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),getCheckpointTitle(Checkpoints.currentCheckpoint()),Toast.LENGTH_LONG).show();
+            }
+        });
+        toastHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(),Checkpoints.currentCheckpoint().getGoogleTravelInfo(),Toast.LENGTH_LONG).show();
             }
         });
     }
