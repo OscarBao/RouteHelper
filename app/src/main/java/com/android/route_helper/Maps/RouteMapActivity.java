@@ -16,6 +16,7 @@ import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.LocationConstants;
 import com.android.route_helper.R;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -85,6 +86,11 @@ public class RouteMapActivity extends MapsActivity{
             @Override
             public void onMapClick(LatLng latLng) {
                 showInstructions();
+            }
+        });
+        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
                 nextPoint.showInfoWindow();
             }
         });
