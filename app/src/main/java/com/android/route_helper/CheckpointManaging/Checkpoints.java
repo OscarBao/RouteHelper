@@ -36,8 +36,6 @@ public class Checkpoints implements Iterable<Checkpoint> {
     public static void moveToNext() {currentCheckpointIndex++;}
     public static Checkpoint currentCheckpoint() {return checkpointsList.get(currentCheckpointIndex);}
     public static boolean atEnd() {
-        if(currentCheckpointIndex >= checkpointsList.size())
-                Log.i("CheckpointsList", "at end of list");
         return currentCheckpointIndex >= checkpointsList.size();
     }
 

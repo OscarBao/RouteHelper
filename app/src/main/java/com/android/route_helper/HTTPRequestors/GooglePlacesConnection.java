@@ -38,8 +38,6 @@ public class GooglePlacesConnection extends AsyncTask<String, Void, Void> {
                             locationString + "&" +
                             LocationConstants.GOOGLE_PLACES_RADIUS_STRING + "&" +
                             LocationConstants.GOOGLE_PLACES_API_KEY;
-        Log.i(logTag, googlePlacesURL);
-
     }
 
     public String getNearestPlaceName () {
@@ -94,7 +92,6 @@ public class GooglePlacesConnection extends AsyncTask<String, Void, Void> {
             nearestLocationName = closestLocationJSON
                                     .getString("name");
             nearestPlace = new Place(nearestLocation, nearestLocationName);
-            Log.i(logTag, "Done");
         }
         catch(MalformedURLException e) {
             e.printStackTrace();

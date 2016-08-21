@@ -103,7 +103,6 @@ public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
 //                                    createCheckpoint(currWalkingStep, j, false, walkingPolylines);
 //                            }
 //                            else
-//                                Log.i("HomeActivity", "Skipped a checkpoint");
 //
 //                        }
 //                    }

@@ -45,13 +45,13 @@ public class GeofenceTransitionsIntentService extends IntentService {
      */
     private void performGeofenceProcessing(int transitionCode, Geofence gf) {
 
-        Intent nextStepIntent = new Intent("nextStep");
-        nextStepIntent.putExtra("requestId", gf.getRequestId());
-        sendBroadcast(nextStepIntent);
-
-
         switch(transitionCode) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
+                Intent nextStepIntent = new Intent("nextStep");
+                nextStepIntent.putExtra("requestId", gf.getRequestId());
+                sendBroadcast(nextStepIntent);
+
+
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 break;

@@ -45,12 +45,6 @@ public class RouteMapActivity extends MapsActivity{
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(broadcastReceiver, intentFilter);
@@ -60,11 +54,6 @@ public class RouteMapActivity extends MapsActivity{
     protected void onPause() {
         super.onPause();
         unregisterReceiver(broadcastReceiver);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
 
@@ -82,6 +71,7 @@ public class RouteMapActivity extends MapsActivity{
                 @Override
                 public void onMapClick(LatLng latLng) {
                     showInstructions();
+                    nextPoint.showInfoWindow();
                 }
             });
         }
@@ -99,7 +89,6 @@ public class RouteMapActivity extends MapsActivity{
             Bundle b = intent.getExtras();
             String requestId = b.getString("requestId");
             displayCheckpoints(requestId);
-            Log.i("GeofenceReceiver", "User has entered checkpoint location");
         }
     }
 
@@ -183,13 +172,15 @@ public class RouteMapActivity extends MapsActivity{
             @Override
             public void run() {
                 Toast.makeText(getApplicationContext(),getCheckpointTitle(Checkpoints.currentCheckpoint()),Toast.LENGTH_LONG).show();
-            }
-        });
-        toastHandler.post(new Runnable() {
-            @Override
-            public void run() {
                 Toast.makeText(getApplicationContext(),Checkpoints.currentCheckpoint().getGoogleTravelInfo(),Toast.LENGTH_LONG).show();
             }
         });
+        /*
+        toastHandler.post(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });
+        */
     }
 }
