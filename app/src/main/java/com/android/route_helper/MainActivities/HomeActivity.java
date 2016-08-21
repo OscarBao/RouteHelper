@@ -22,11 +22,11 @@ import java.util.Locale;
 import com.android.route_helper.CheckpointManaging.Checkpoint;
 import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.HTTPRequestors.GoogleDirectionsConnection;
+import com.android.route_helper.HTTPRequestors.GooglePlacesConnection;
 import com.android.route_helper.LocationConstants;
 import com.android.route_helper.LocationTracking.GeofencesManager;
 import com.android.route_helper.Maps.MapsManager;
 import com.android.route_helper.R;
-import com.android.route_helper.StaticManagers.ToastHandler;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.PolyUtil;
 
@@ -83,6 +83,7 @@ public class HomeActivity extends RefreshActivity {
     public void onResume() {
         super.onResume();
         geofencesManager.shutdownGeofences();
+        geofencesManager.endLocationTracking();
         Checkpoints.clear();
     }
 
@@ -109,43 +110,19 @@ public class HomeActivity extends RefreshActivity {
         }
 
         private void planRoute() {
-            String directionURL = "https://maps.googleapis.com/maps/api/directions/json?";
-            String methodOfTransportation = "mode=transit";
-            String origin = "origin=" + MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLatitude() + "," +
-                    MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLongitude();
-            String destination = "destination=" + MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLatitude() + "," +
-                    MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLongitude();
-            Log.i(logTag, "Here is your source: " + origin);
-            Log.i(logTag, "Here is your destination: " + destination);
-            if(origin.equals("origin=Default loc") || destination.equals("destination=Default loc")) {
-                ToastHandler.displayMessage(getApplicationContext(), "Both origin and destination need a location");
-                return;
-            }
-            String apiKey = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
-            directionURL += origin + "&" + destination + "&" + methodOfTransportation + "&" + apiKey;
-            System.out.println(directionURL);
+            Location origin = MapsManager.getPlace(LocationConstants.FLAG_SOURCE).getLocation();
+            Location destination = MapsManager.getPlace(LocationConstants.FLAG_DESTINATION).getLocation();
             StartMapDirectionsConnection conn = new StartMapDirectionsConnection(LocationConstants.FLAG_PLANROUTE);
-            conn.execute(directionURL);
+            conn.createGoogleDirectionsURL(origin, destination);
+            conn.execute();
         }
 
         private void startRoute() {
-            String directionURL = "https://maps.googleapis.com/maps/api/directions/json?";
-            String methodOfTransportation = "mode=transit";
-            String origin = "origin=" + MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLatitude() + "," +
-                    MapsManager.getLocation(LocationConstants.FLAG_SOURCE).getLongitude();
-            String destination = "destination=" + MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLatitude() + "," +
-                    MapsManager.getLocation(LocationConstants.FLAG_DESTINATION).getLongitude();
-            Log.i(logTag, "Here is your source: " + origin);
-            Log.i(logTag, "Here is your destination: " + destination);
-            if(origin.equals("origin=Default loc") || destination.equals("destination=Default loc")) {
-                ToastHandler.displayMessage(getApplicationContext(), "Both origin and destination need a location");
-                return;
-            }
-            String apiKey = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
-            directionURL += origin + "&" + destination + "&" + methodOfTransportation + "&" + apiKey;
-            System.out.println(directionURL);
-            StartMapDirectionsConnection conn = new StartMapDirectionsConnection();
-            conn.execute(directionURL);
+            Location origin = MapsManager.getPlace(LocationConstants.FLAG_SOURCE).getLocation();
+            Location destination = MapsManager.getPlace(LocationConstants.FLAG_DESTINATION).getLocation();
+            StartMapDirectionsConnection conn = new StartMapDirectionsConnection(LocationConstants.FLAG_STARTROUTE);
+            conn.createGoogleDirectionsURL(origin, destination);
+            conn.execute();
         }
     }
 
@@ -183,11 +160,11 @@ public class HomeActivity extends RefreshActivity {
      */
     private class StartMapDirectionsConnection extends GoogleDirectionsConnection {    // private void
         public StartMapDirectionsConnection(String actionTag) {
-            super(actionTag);
+            super(getApplicationContext(), actionTag);
         }
 
         public StartMapDirectionsConnection() {
-            super();
+            super(getApplicationContext());
         }
 
         @Override
@@ -206,17 +183,6 @@ public class HomeActivity extends RefreshActivity {
      */
 
     private void bootGeofences() {
-        for(Location loc : Checkpoints.locationsList()) {
-            String name = "";
-            try {
-                Address address = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1).get(0);
-                name = address.getAddressLine(0);
-            }
-            catch( IOException e) {
-                e.printStackTrace();
-            }
-            Log.i(logTag, name);
-        }
         geofencesManager.bootGeofencingWithLocations(Checkpoints.locationsList());
     }
 
@@ -225,23 +191,29 @@ public class HomeActivity extends RefreshActivity {
         String source = LocationConstants.FLAG_SOURCE;
         String destination = LocationConstants.FLAG_DESTINATION;
         String displayText = "";
-        if(MapsManager.hasLocation(source)) {
+        if(MapsManager.hasPlace(source)) {
             try {
-                displayText = getAddress(MapsManager.getLocation(source)).getAddressLine(0);
-                displayText += ", " + getAddress(MapsManager.getLocation(source)).getAddressLine(1);
+                displayText = MapsManager.getPlace(source).getName();
+                displayText += ", " + getAddress(MapsManager.getPlace(source).getLocation()).getAddressLine(1);
                 startLocation.setText(displayText);
             } catch (NullPointerException e) {
                 startLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
             }
         }
-        if(MapsManager.hasLocation(destination)) {
+        else {
+            startLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
+        }
+        if(MapsManager.hasPlace(destination)) {
             try {
-                displayText = getAddress(MapsManager.getLocation(destination)).getAddressLine(0);
-                displayText += ", " + getAddress(MapsManager.getLocation(destination)).getAddressLine(1);
+                displayText = MapsManager.getPlace(destination).getName();
+                displayText += ", " + getAddress(MapsManager.getPlace(destination).getLocation()).getAddressLine(1);
                 destLocation.setText(displayText);
             } catch (NullPointerException e) {
                 destLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
             }
+        }
+        else {
+            destLocation.setText(LocationConstants.DEFAULT_LOCATION_STRING);
         }
 
     }

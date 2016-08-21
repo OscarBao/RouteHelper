@@ -10,7 +10,6 @@ import android.os.Bundle;
 import com.android.route_helper.CheckpointManaging.Checkpoints;
 import com.android.route_helper.Maps.MapsManager;
 import com.android.route_helper.R;
-import com.android.route_helper.StaticManagers.ToastHandler;
 
 public class LaunchActivity extends AppCompatActivity {
 
@@ -26,7 +25,6 @@ public class LaunchActivity extends AppCompatActivity {
         /*
         Perform loading activities
          */
-        ToastHandler toastHandler = new ToastHandler();
         MapsManager mapsManager = new MapsManager();
         Checkpoints checkpoints = new Checkpoints();
 

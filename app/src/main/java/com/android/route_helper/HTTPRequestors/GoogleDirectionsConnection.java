@@ -1,8 +1,12 @@
 package com.android.route_helper.HTTPRequestors;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.android.route_helper.CheckpointManaging.Checkpoint;
 import com.android.route_helper.CheckpointManaging.Checkpoints;
@@ -19,8 +23,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -28,21 +32,44 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by Oscar_Local on 8/18/2016.
  */
 public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
+    private static String logTag = "GoogleDirectionsConn";
     public String actionToken = "";
+    private String googleDirectionsURL = "";
+    private Geocoder geocoder;
+    private Context appContext;
 
-    public GoogleDirectionsConnection() {
+    public GoogleDirectionsConnection(Context context) {
         actionToken = LocationConstants.FLAG_STARTROUTE;
+        appContext = context;
+        geocoder = new Geocoder(appContext, Locale.US);
     }
 
-    public GoogleDirectionsConnection(String actionToken) {
+    public GoogleDirectionsConnection(Context context, String actionToken) {
         this.actionToken = actionToken;
+        appContext = context;
+        geocoder = new Geocoder(appContext, Locale.US);
     }
+
+    public void createGoogleDirectionsURL(Location origin, Location destination) {
+        String originString = "origin=" + origin.getLatitude() + "," + origin.getLongitude();
+        String destinationString = "destination=" + destination.getLatitude() + "," + destination.getLongitude();
+        googleDirectionsURL = LocationConstants.GOOGLE_DIRECTIONS_BASE_URL +
+                                originString + "&" +
+                                destinationString + "&" +
+                                LocationConstants.GOOGLE_DIRECTIONS_TRANSIT_MODE + "&" +
+                                LocationConstants.GOOGLE_DIRECTIONS_API_KEY;
+        Log.i(logTag, googleDirectionsURL);
+    }
+
 
     @Override
     protected Void doInBackground(String... params) {
+        if(googleDirectionsURL == null || googleDirectionsURL.equals("")) {
+            return null;
+        }
         try {
             Checkpoints.clear();
-            URL url = new URL(params[0]);
+            URL url = new URL(googleDirectionsURL);
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     conn.getInputStream()));
@@ -102,20 +129,33 @@ public class GoogleDirectionsConnection extends AsyncTask<String,Void,Void> {
     // private void
     @Override
     protected void onPostExecute(Void aVoid) {
+        if(googleDirectionsURL == null || googleDirectionsURL.equals("")) {
+            return;
+        }
     }
 
     private void createCheckpoint(JSONObject jsonObject, int index, boolean isStartLocation) throws JSONException{
         String lat = jsonObject.getJSONObject((isStartLocation) ? "start_location": "end_location").getString("lat");
         String lng = jsonObject.getJSONObject((isStartLocation) ? "start_location": "end_location").getString("lng");
-        String instructions = jsonObject.getString("html_instructions");
         List<LatLng> encodedPolylines = PolyUtil.decode(jsonObject.getJSONObject("polyline").getString("points"));
         int typeCode = (jsonObject.getString("travel_mode").equals("TRANSIT")) ? 1:0;
-        String address = "Checkpoint " + index;
+        if(isStartLocation) typeCode = -1;
         Location l = new Location(LocationManager.GPS_PROVIDER);
         l.setLatitude(Double.parseDouble(lat));
         l.setLongitude(Double.parseDouble(lng));
-        Checkpoint c = new Checkpoint(l,address,typeCode,encodedPolylines,instructions);
+        String address = getAddress(l).getAddressLine(0);
+        Checkpoint c = new Checkpoint(l,address,typeCode,encodedPolylines);
         Checkpoints.add(c);
+    }
+
+    private Address getAddress(Location loc) {
+        try {
+            return geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1).get(0);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return new Address(Locale.US);
+        }
     }
 }
 

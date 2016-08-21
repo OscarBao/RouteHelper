@@ -52,9 +52,6 @@
             android:label="RouteMap" />
         <activity android:name=".Maps.SelectionMapActivity"
             android:label="SelectionMap"/>
-        <service
-            android:name=".StaticManagers.ToastService"
-            android:exported="false"></service>
     </application>
 
 </manifest>

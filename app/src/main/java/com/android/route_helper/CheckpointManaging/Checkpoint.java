@@ -1,5 +1,6 @@
 package com.android.route_helper.CheckpointManaging;
 
+import android.location.Geocoder;
 import android.location.Location;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -14,19 +15,16 @@ public class Checkpoint {
     String name;
     Location location;
     List<LatLng> polyline;
-    String instructionsToNext;
 
     public Checkpoint() {
-        this(null, "Default Checkpoint", 0, null,"Nothing");
+        this(null, "Default Checkpoint", 0, null);
     }
 
-    public Checkpoint(Location location, String name, int typeCode, List<LatLng> polyline, String instructionsToNext) {
+    public Checkpoint(Location location, String name, int typeCode, List<LatLng> polyline) {
         this.location = location;
         this.name = name;
         this.typeCode = typeCode;
         this.polyline = polyline;
-        this.instructionsToNext = instructionsToNext;
-
     }
 
     /*
@@ -36,7 +34,6 @@ public class Checkpoint {
     public String getName() {return this.name;}
     public int getTypeCode() {return this.typeCode;}
     public List<LatLng> getPolyline() {return this.polyline;}
-    public String getInstructionsToNext() { return this.instructionsToNext;}
 
     public void setLocation(Location location) {this.location = location;}
     public void setName(String name) {this.name = name;}

@@ -19,4 +19,15 @@ public interface LocationConstants {
     String FLAG_SOURCE = "selectSourceFlag";
     String FLAG_STARTROUTE = "startRouteFlag";
     String FLAG_PLANROUTE = "planRouteFlag";
+
+
+    //Google Directions Info
+    String GOOGLE_DIRECTIONS_BASE_URL = "https://maps.googleapis.com/maps/api/directions/json?";
+    String GOOGLE_DIRECTIONS_TRANSIT_MODE = "mode=transit";
+    String GOOGLE_DIRECTIONS_API_KEY = "key=AIzaSyAwXZoA-POkRv12Stm4h_kgDdSkM-FKgn8";
+
+    String GOOGLE_PLACES_BASE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+    int GOOGLE_PLACES_DEFAULT_RADIUS = 100;
+    String GOOGLE_PLACES_RADIUS_STRING = "radius=" + GOOGLE_PLACES_DEFAULT_RADIUS;
+    String GOOGLE_PLACES_API_KEY = "key=AIzaSyDoj7qerU5m56m9NU42R1r7DZ96jgGR4gc";
 }

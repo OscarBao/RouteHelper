@@ -26,6 +26,8 @@ import java.util.ArrayList;
 
 public class GeofencesManager {
 
+    private LocationManager locationManager;
+    private LocationListener locationListener;
     private GoogleApiClient apiClient;
     private Context appContext;
     private ConnectionDealer connectionDealer;
@@ -39,6 +41,13 @@ public class GeofencesManager {
         this.appContext = context;
         connectionDealer = new ConnectionDealer();
         apiClient = buildGoogleApiClient(appContext);
+        locationManager = (LocationManager) appContext.getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {}
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            public void onProviderEnabled(String provider) {}
+            public void onProviderDisabled(String provider) {}
+        };
     }
 
     public void shutdownGeofences() {
@@ -60,27 +69,20 @@ public class GeofencesManager {
     }
 
     public void startLocationTracking() {
-        // Acquire a reference to the system Location Manager
-        LocationManager locationManager = (LocationManager) appContext.getSystemService(Context.LOCATION_SERVICE);
-
-        // Define a listener that responds to location updates
-        LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-            public void onProviderEnabled(String provider) {}
-
-            public void onProviderDisabled(String provider) {}
-        };
-
-
         try {
             // Register the listener with the Location Manager to receive location updates
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 100, locationListener);
         }
         catch( SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void endLocationTracking() {
+        try {
+            locationManager.removeUpdates(locationListener);
+        }
+        catch (SecurityException e) {
             e.printStackTrace();
         }
     }
